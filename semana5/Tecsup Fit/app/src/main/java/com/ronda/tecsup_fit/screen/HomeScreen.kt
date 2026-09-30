@@ -8,7 +8,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FitnessCenter
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -67,11 +70,13 @@ val clases: List<Clase> = listOf(
 @Composable
 fun HomeScreen(navController: NavController) {
     var selectedFilter by remember { mutableStateOf("Hoy") }
+    var searchQuery by remember { mutableStateOf("") }
 
-    val filteredClases = if (selectedFilter == "Hoy") {
-        clases.filter { it.filtro == "Hoy" }
-    } else {
-        clases
+    val filteredClases = clases.filter { clase ->
+        val matchesFilter = if (selectedFilter == "Hoy") clase.filtro == "Hoy" else true
+        val matchesSearch = clase.nombre.contains(searchQuery, ignoreCase = true) ||
+                clase.sala.contains(searchQuery, ignoreCase = true)
+        matchesFilter && matchesSearch
     }
 
     Column(
@@ -104,6 +109,43 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 16.dp),
         ) {
+            // Search Bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                placeholder = { Text("Buscar clase o sala...") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Buscar",
+                        tint = Color.Gray,
+                    )
+                },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Limpiar búsqueda",
+                                tint = Color.Gray,
+                            )
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = TecsupGreenPrimary,
+                    unfocusedBorderColor = Color(0xFFE0E0E0),
+                    focusedContainerColor = Color(0xFFF0F3F1),
+                    unfocusedContainerColor = Color(0xFFF0F3F1),
+                ),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             val filters = listOf("Hoy", "Esta semana")
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -140,57 +182,89 @@ fun HomeScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                items(filteredClases) { clase ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                navController.navigate(
-                                    Screen.Detail.createRoute(clase.id),
-                                )
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFF0F3F1),
-                        ),
+            if (filteredClases.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        Row(
+                        Icon(
+                            imageVector = Icons.Default.SearchOff,
+                            contentDescription = "No hay resultados",
+                            tint = Color.Gray,
+                            modifier = Modifier.size(48.dp),
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "No se encontraron clases",
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Gray,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Intenta buscar con otro término o cambia de filtro",
+                            fontSize = 12.sp,
+                            color = Color.Gray,
+                        )
+                    }
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    items(filteredClases) { clase ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                                .clickable {
+                                    navController.navigate(
+                                        Screen.Detail.createRoute(clase.id),
+                                    )
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFF0F3F1),
+                            ),
                         ) {
-                            Box(
+                            Row(
                                 modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(TecsupGreenLight),
-                                contentAlignment = Alignment.Center,
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.FitnessCenter,
-                                    contentDescription = "Clase",
-                                    tint = TecsupGreenPrimary,
-                                )
-                            }
+                                Box(
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(TecsupGreenLight),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.FitnessCenter,
+                                        contentDescription = "Clase",
+                                        tint = TecsupGreenPrimary,
+                                    )
+                                }
 
-                            Spacer(modifier = Modifier.width(16.dp))
+                                Spacer(modifier = Modifier.width(16.dp))
 
-                            Column {
-                                Text(
-                                    text = clase.nombre,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp,
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "${clase.hora} • ${clase.sala}",
-                                    color = Color.Gray,
-                                    fontSize = 13.sp,
-                                )
+                                Column {
+                                    Text(
+                                        text = clase.nombre,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "${clase.hora} • ${clase.sala}",
+                                        color = Color.Gray,
+                                        fontSize = 13.sp,
+                                    )
+                                }
                             }
                         }
                     }
