@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.ronda.tecsup_fit.data.ReservationRepository
 import com.ronda.tecsup_fit.navigation.Screen
 import com.ronda.tecsup_fit.ui.theme.TecsupGreenLight
 import com.ronda.tecsup_fit.ui.theme.TecsupGreenPrimary
@@ -58,7 +59,7 @@ fun ConfirmationScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Cross Training",
+            text = ReservationRepository.lastReservedName,
             fontSize = 15.sp,
             color = Color.Gray,
         )
@@ -66,7 +67,7 @@ fun ConfirmationScreen(
         Spacer(modifier = Modifier.height(4.dp))
 
         Text(
-            text = "Hoy, 6:00 pm · Sala 1",
+            text = ReservationRepository.lastReservedDetails,
             fontSize = 14.sp,
             color = Color.Gray,
         )
