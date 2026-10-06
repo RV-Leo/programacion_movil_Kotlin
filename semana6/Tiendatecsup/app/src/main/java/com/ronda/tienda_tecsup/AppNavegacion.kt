@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -37,7 +38,12 @@ fun AppNavegacion() {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var favoritos by remember { mutableStateOf(emptySet<Int>()) }
-    val destinosDrawer = listOf("Inicio", "Mis pedidos", "Favoritos", "Perfil")
+    val destinosDrawer = listOf(
+        "Inicio" to "inicio",
+        "Mis pedidos" to "mis_pedidos",
+        "Favoritos" to "favoritos",
+        "Perfil" to "perfil"
+    )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -48,12 +54,21 @@ fun AppNavegacion() {
                     modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
                     style = MaterialTheme.typography.titleMedium
                 )
-                destinosDrawer.forEach { destino ->
+                destinosDrawer.forEach { (nombre, ruta) ->
                     NavigationDrawerItem(
-                        label = { Text(destino) },
+                        label = { Text(nombre) },
                         selected = false,
                         onClick = {
-                            scope.launch { drawerState.close() }
+                            scope.launch {
+                                drawerState.close()
+                                navController.navigate(ruta) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }
                         },
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
@@ -104,6 +119,29 @@ fun AppNavegacion() {
                             navController.navigate("inicio")
                         }
                     }
+                }
+                composable("mis_pedidos") {
+                    PantallaSeccion(
+                        titulo = "Mis pedidos",
+                        mensaje = "Todavía no tienes pedidos."
+                    )
+                }
+                composable("favoritos") {
+                    PantallaFavoritos(
+                        favoritoIds = favoritos,
+                        onProductoClick = { producto ->
+                            navController.navigate("detalle/${producto.id}")
+                        },
+                        onCambiarFavorito = { producto ->
+                            favoritos = favoritos - producto.id
+                        }
+                    )
+                }
+                composable("perfil") {
+                    PantallaSeccion(
+                        titulo = "Perfil",
+                        mensaje = "Perfil de usuario TECSUP"
+                    )
                 }
             }
         }
