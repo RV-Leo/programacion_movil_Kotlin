@@ -23,7 +23,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PantallaInicio(
     productos: List<Producto> = productosEjemplo,
-    onProductoClick: (Producto) -> Unit
+    onProductoClick: (Producto) -> Unit,
+    favoritos: Set<Int> = emptySet(),
+    onCambiarFavorito: (Producto) -> Unit = {}
 ) {
     var categoriaSeleccionada by remember { mutableStateOf("Todos") }
     val categorias = listOf("Todos") + categoriasProducto
@@ -69,9 +71,12 @@ fun PantallaInicio(
                         )
                     }
                     items(productosCategoria, key = { it.id }) { producto ->
-                        TarjetaProducto(producto = producto) {
-                            onProductoClick(producto)
-                        }
+                        TarjetaProducto(
+                            producto = producto,
+                            onClick = { onProductoClick(producto) },
+                            favorito = producto.id in favoritos,
+                            onCambiarFavorito = { onCambiarFavorito(producto) }
+                        )
                     }
                 }
             }

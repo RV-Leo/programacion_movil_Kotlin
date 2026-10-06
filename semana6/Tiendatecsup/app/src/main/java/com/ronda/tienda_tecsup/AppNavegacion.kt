@@ -5,6 +5,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
 import androidx.navigation.NavType
@@ -17,6 +21,7 @@ import androidx.navigation.navArgument
 @Composable
 fun AppNavegacion() {
     val navController = rememberNavController()
+    var favoritos by remember { mutableStateOf(emptySet<Int>()) }
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TECSUP Store") })
@@ -28,9 +33,19 @@ fun AppNavegacion() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable("inicio") {
-                PantallaInicio { producto ->
-                    navController.navigate("detalle/${producto.id}")
-                }
+                PantallaInicio(
+                    onProductoClick = { producto ->
+                        navController.navigate("detalle/${producto.id}")
+                    },
+                    favoritos = favoritos,
+                    onCambiarFavorito = { producto ->
+                        favoritos = if (producto.id in favoritos) {
+                            favoritos - producto.id
+                        } else {
+                            favoritos + producto.id
+                        }
+                    }
+                )
             }
             composable(
                 route = "detalle/{productoId}",

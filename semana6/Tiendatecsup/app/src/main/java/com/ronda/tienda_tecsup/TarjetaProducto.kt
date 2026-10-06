@@ -1,5 +1,7 @@
 package com.ronda.tienda_tecsup
 
+import android.content.Intent
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
@@ -25,9 +30,12 @@ import java.util.Locale
 fun TarjetaProducto(
     producto: Producto,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    favorito: Boolean = false,
+    onCambiarFavorito: () -> Unit = {}
 ) {
     var menuExpandido by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Card(
         onClick = onClick,
@@ -43,13 +51,49 @@ fun TarjetaProducto(
                 text = String.format(Locale.forLanguageTag("es-PE"), "S/ %.2f", producto.precio),
                 style = MaterialTheme.typography.titleSmall
             )
-            IconButton(onClick = { menuExpandido = !menuExpandido }) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = if (menuExpandido) "Cerrar menú" else "Abrir menú",
-                    tint = if (menuExpandido) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            androidx.compose.foundation.layout.Box {
+                IconButton(onClick = { menuExpandido = true }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Más opciones",
+                        tint = if (menuExpandido) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpandido,
+                    onDismissRequest = { menuExpandido = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(if (favorito) "Quitar de Favoritos" else "Favoritos") },
+                        onClick = {
+                            onCambiarFavorito()
+                            menuExpandido = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Compartir") },
+                        onClick = {
+                            val compartir = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "${producto.nombre} (${producto.categoria}) - " +
+                                        String.format(Locale.forLanguageTag("es-PE"), "S/ %.2f", producto.precio)
+                                )
+                            }
+                            context.startActivity(Intent.createChooser(compartir, "Compartir producto"))
+                            menuExpandido = false
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Reportar") },
+                        onClick = {
+                            Toast.makeText(context, "Producto reportado", Toast.LENGTH_SHORT).show()
+                            menuExpandido = false
+                        }
+                    )
+                }
             }
         }
     }
