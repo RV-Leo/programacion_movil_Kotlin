@@ -1,9 +1,20 @@
 package com.ronda.tienda_tecsup
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Badge
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -12,6 +23,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -21,47 +33,85 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import kotlinx.coroutines.launch
+
+private data class DestinoDrawer(
+    val nombre: String,
+    val ruta: String,
+    val icono: androidx.compose.ui.graphics.vector.ImageVector
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavegacion() {
     val navController = rememberNavController()
+    val entradaActual by navController.currentBackStackEntryAsState()
+    val rutaActual = entradaActual?.destination?.route
+    val rutaSeleccionada = if (rutaActual == "detalle/{productoId}") "inicio" else rutaActual
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var favoritos by remember { mutableStateOf(emptySet<Int>()) }
     val destinosDrawer = listOf(
-        "Inicio" to "inicio",
-        "Mis pedidos" to "mis_pedidos",
-        "Favoritos" to "favoritos",
-        "Perfil" to "perfil"
+        DestinoDrawer("Inicio", "inicio", Icons.Default.Home),
+        DestinoDrawer("Mis pedidos", "mis_pedidos", Icons.Default.Receipt),
+        DestinoDrawer("Favoritos", "favoritos", Icons.Default.Favorite),
+        DestinoDrawer("Perfil", "perfil", Icons.Default.Person)
     )
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(
-                    text = "Secciones",
-                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp),
-                    style = MaterialTheme.typography.titleMedium
-                )
-                destinosDrawer.forEach { (nombre, ruta) ->
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(20.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ) {
+                            Text(
+                                text = "JL",
+                                modifier = Modifier.padding(16.dp),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                        }
+                        Column(modifier = Modifier.padding(start = 16.dp)) {
+                            Text("Juan José León Suiyon", style = MaterialTheme.typography.titleSmall)
+                            Text("Estudiante TECSUP", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                destinosDrawer.forEach { destino ->
                     NavigationDrawerItem(
-                        label = { Text(nombre) },
-                        selected = false,
+                        label = { Text(destino.nombre) },
+                        icon = { Icon(destino.icono, contentDescription = null) },
+                        badge = {
+                            if (destino.ruta == "favoritos") {
+                                Badge { Text(favoritos.size.toString()) }
+                            }
+                        },
+                        selected = rutaSeleccionada == destino.ruta,
                         onClick = {
                             scope.launch {
                                 drawerState.close()
-                                navController.navigate(ruta) {
+                                navController.navigate(destino.ruta) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
