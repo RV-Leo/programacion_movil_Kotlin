@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "NavLab"
 include(":app")
+include(":app")
  
