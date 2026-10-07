@@ -9,6 +9,8 @@ object Rutas {
     const val DATOS_ENTREGA = "datos_entrega"
     const val CONFIRMACION = "confirmacion"
     const val PERFIL = "perfil"
+    const val MIS_PEDIDOS = "mis_pedidos"
+    const val FAVORITOS = "favoritos"
 
     fun detalle(productoId: Int): String = "detalle/$productoId"
 }

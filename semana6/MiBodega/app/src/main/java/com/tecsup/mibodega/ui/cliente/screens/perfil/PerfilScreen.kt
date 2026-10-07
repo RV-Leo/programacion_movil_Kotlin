@@ -12,12 +12,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -34,7 +37,8 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Pantalla de Perfil del cliente.
- * Muestra los datos utilizados al crear la cuenta (nombre, teléfono, dirección, referencia).
+ * Muestra los datos utilizados al crear la cuenta (nombre, teléfono, dirección, referencia)
+ * y acceso a "Mis pedidos".
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,6 +47,8 @@ fun PerfilScreen(
     telefono: String,
     direccion: String,
     referencia: String,
+    onVerMisPedidos: () -> Unit,
+    onVerFavoritos: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
@@ -83,7 +89,7 @@ fun PerfilScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(24.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -102,6 +108,30 @@ fun PerfilScreen(
                     Spacer(Modifier.height(16.dp))
                     ItemDatoPerfil(titulo = "Referencia", valor = referencia.ifEmpty { "Ninguna" })
                 }
+            }
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedButton(
+                onClick = onVerMisPedidos,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.ReceiptLong, contentDescription = null, tint = VerdeBodega)
+                Spacer(Modifier.size(8.dp))
+                Text("Ver Mis Pedidos", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = onVerFavoritos,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Default.Favorite, contentDescription = null, tint = VerdeBodega)
+                Spacer(Modifier.size(8.dp))
+                Text("Mis Favoritos", color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold)
             }
 
             Spacer(Modifier.weight(1f))
@@ -138,10 +168,12 @@ private fun ItemDatoPerfil(titulo: String, valor: String) {
 private fun PerfilPreview() {
     BodegaTheme {
         PerfilScreen(
-            nombre = "Juan Pérez",
+            nombre = "Leonardo Ronda",
             telefono = "987654321",
-            direccion = "Av. Los Olivos 123",
+            direccion = "Av. Los cerezos 123",
             referencia = "Frente al parque",
+            onVerMisPedidos = {},
+            onVerFavoritos = {},
             onCerrarSesion = {}
         )
     }

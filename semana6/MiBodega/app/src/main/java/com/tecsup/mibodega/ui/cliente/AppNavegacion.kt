@@ -23,17 +23,23 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
+import com.tecsup.mibodega.ui.cliente.modelo.Pedido
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
+import com.tecsup.mibodega.ui.cliente.screens.favoritos.FavoritosScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.PantallaLogin
+import com.tecsup.mibodega.ui.cliente.screens.pedidos.MisPedidosScreen
 import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.PantallaCrearCuenta
 import com.tecsup.mibodega.ui.theme.VerdeBodega
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AppNavegacion() {
@@ -46,10 +52,14 @@ fun AppNavegacion() {
     var direccionEntrega by remember { mutableStateOf("") }
     var totalPedido by remember { mutableStateOf(0.0) }
 
+    // Historial de pedidos y favoritos
+    var historialPedidos by remember { mutableStateOf<List<Pedido>>(emptyList()) }
+    var idsFavoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
+
     // Datos del usuario (perfil / registro)
-    var nombreUsuario by remember { mutableStateOf("Juan Pérez") }
+    var nombreUsuario by remember { mutableStateOf("Leonardo Ronda") }
     var telefonoUsuario by remember { mutableStateOf("987 654 321") }
-    var direccionUsuario by remember { mutableStateOf("Av. Los Olivos 123") }
+    var direccionUsuario by remember { mutableStateOf("Av. Los cerezos 123") }
     var referenciaUsuario by remember { mutableStateOf("Frente al parque") }
 
     Scaffold(
@@ -139,6 +149,7 @@ fun AppNavegacion() {
             composable(Rutas.INICIO) {
                 InicioScreen(
                     cantidadCarrito = carrito.sumOf { it.cantidad },
+                    idsFavoritos = idsFavoritos,
                     onVerCarrito = { navController.navigate(Rutas.CARRITO) },
                     onProductoClick = { producto ->
                         navController.navigate(Rutas.detalle(producto.id))
@@ -146,6 +157,13 @@ fun AppNavegacion() {
                     onAgregarProducto = { producto ->
                         carrito = agregarOSumarProducto(carrito, producto, 1)
                         navController.navigate(Rutas.CARRITO)
+                    },
+                    onToggleFavorito = { producto ->
+                        idsFavoritos = if (idsFavoritos.contains(producto.id)) {
+                            idsFavoritos - producto.id
+                        } else {
+                            idsFavoritos + producto.id
+                        }
                     }
                 )
             }
@@ -171,6 +189,11 @@ fun AppNavegacion() {
                 CarritoScreen(
                     carrito = carrito,
                     onVolver = { navController.popBackStack() },
+                    onIrAInicio = {
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.INICIO) { inclusive = true }
+                        }
+                    },
                     onIncrementar = { producto ->
                         carrito = carrito.map {
                             if (it.producto.id == producto.id) it.copy(cantidad = it.cantidad + 1) else it
@@ -199,9 +222,22 @@ fun AppNavegacion() {
                 DatosEntregaScreen(
                     totalPedido = totalPedido,
                     onVolver = { navController.popBackStack() },
-                    onConfirmar = { nombre, _, direccion, _ ->
+                    onConfirmar = { nombre, _, direccion, _, totalFinal ->
                         nombreEntrega = nombre
                         direccionEntrega = direccion
+                        totalPedido = totalFinal
+
+                        // Registrar en historial de pedidos
+                        val fechaActual = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date())
+                        val nuevoPedido = Pedido(
+                            id = (1000 + historialPedidos.size + 1).toString(),
+                            fecha = fechaActual,
+                            items = carrito,
+                            total = totalFinal,
+                            direccion = direccion
+                        )
+                        historialPedidos = listOf(nuevoPedido) + historialPedidos
+
                         carrito = emptyList()
                         navController.navigate(Rutas.CONFIRMACION) {
                             popUpTo(Rutas.INICIO) { inclusive = false }
@@ -230,11 +266,42 @@ fun AppNavegacion() {
                     telefono = telefonoUsuario,
                     direccion = direccionUsuario,
                     referencia = referenciaUsuario,
+                    onVerMisPedidos = {
+                        navController.navigate(Rutas.MIS_PEDIDOS)
+                    },
+                    onVerFavoritos = {
+                        navController.navigate(Rutas.FAVORITOS)
+                    },
                     onCerrarSesion = {
                         carrito = emptyList()
                         navController.navigate(Rutas.LOGIN) {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
+                    }
+                )
+            }
+
+            composable(Rutas.MIS_PEDIDOS) {
+                MisPedidosScreen(
+                    pedidos = historialPedidos,
+                    onVolver = { navController.popBackStack() }
+                )
+            }
+
+            composable(Rutas.FAVORITOS) {
+                FavoritosScreen(
+                    productosFavoritos = listaProductosFake.filter { idsFavoritos.contains(it.id) },
+                    idsFavoritos = idsFavoritos,
+                    onVolver = { navController.popBackStack() },
+                    onProductoClick = { producto ->
+                        navController.navigate(Rutas.detalle(producto.id))
+                    },
+                    onAgregarProducto = { producto ->
+                        carrito = agregarOSumarProducto(carrito, producto, 1)
+                        navController.navigate(Rutas.CARRITO)
+                    },
+                    onToggleFavorito = { producto ->
+                        idsFavoritos = idsFavoritos - producto.id
                     }
                 )
             }

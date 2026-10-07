@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -26,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,15 +40,16 @@ import com.tecsup.mibodega.ui.theme.RojoPrecio
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
- * Tarjeta de producto usada en la lista de Inicio (en 2 columnas).
- * Prioridad: Imagen arriba, debajo nombre, luego peso/descripción,
- * y abajo el precio en color rojo con botón de agregar.
+ * Tarjeta de producto usada en la lista de Inicio y Favoritos (en 2 columnas).
+ * Incluye ícono de corazón para marcar/desmarcar como favorito.
  */
 @Composable
 fun ProductoCard(
     producto: Producto,
+    esFavorito: Boolean = false,
     onClick: () -> Unit,
     onAgregar: () -> Unit,
+    onToggleFavorito: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -60,7 +64,6 @@ fun ProductoCard(
                 .fillMaxWidth()
                 .padding(10.dp)
         ) {
-            // Imagen del producto (prioridad arriba)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -75,6 +78,23 @@ fun ProductoCard(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
                 )
+
+                // Botón favorito (Corazón)
+                IconButton(
+                    onClick = onToggleFavorito,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(32.dp)
+                        .background(Color.White.copy(alpha = 0.8f), CircleShape)
+                ) {
+                    Icon(
+                        imageVector = if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorito",
+                        tint = if (esFavorito) RojoPrecio else Color.Gray,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
 
             Spacer(Modifier.height(8.dp))

@@ -21,12 +21,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,19 +49,21 @@ import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.SelectorCantidad
 import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.GrisClaro
+import com.tecsup.mibodega.ui.theme.RojoPrecio
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 private const val COSTO_DELIVERY = 4.00
 
 /**
- * Pantalla 5: Mi carrito (mockup "Cliente").
- * No guarda estado propio: el carrito viene de AppNavegacion y cualquier
- * cambio (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
+ * Pantalla 5: Mi carrito.
+ * Muestra mensaje de carrito vacío si no hay productos,
+ * y solicita confirmación con AlertDialog antes de eliminar un producto.
  */
 @Composable
 fun CarritoScreen(
     carrito: List<ItemCarrito>,
     onVolver: () -> Unit,
+    onIrAInicio: () -> Unit,
     onIncrementar: (Producto) -> Unit,
     onDecrementar: (Producto) -> Unit,
     onEliminar: (Producto) -> Unit,
@@ -63,6 +72,32 @@ fun CarritoScreen(
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
     val total = subtotal + COSTO_DELIVERY
 
+    var productoParaEliminar by remember { mutableStateOf<Producto?>(null) }
+
+    // AlertDialog de confirmación para eliminar producto
+    if (productoParaEliminar != null) {
+        AlertDialog(
+            onDismissRequest = { productoParaEliminar = null },
+            title = { Text("Eliminar producto") },
+            text = { Text("¿Deseas eliminar '${productoParaEliminar?.nombre}' del carrito?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        productoParaEliminar?.let { onEliminar(it) }
+                        productoParaEliminar = null
+                    }
+                ) {
+                    Text("Eliminar", color = RojoPrecio, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { productoParaEliminar = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,29 +105,65 @@ fun CarritoScreen(
     ) {
         EncabezadoCarrito(onVolver = onVolver)
 
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 20.dp),
-            contentPadding = PaddingValues(vertical = 8.dp)
-        ) {
-            items(carrito, key = { it.producto.id }) { item ->
-                FilaCarrito(
-                    item = item,
-                    onIncrementar = { onIncrementar(item.producto) },
-                    onDecrementar = { onDecrementar(item.producto) },
-                    onEliminar = { onEliminar(item.producto) }
+        if (carrito.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .weight(1f)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ShoppingCart,
+                    contentDescription = null,
+                    tint = VerdeBodega,
+                    modifier = Modifier.size(72.dp)
                 )
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Tu carrito está vacío",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = "Agrega productos desde el catálogo para realizar un pedido.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(Modifier.height(24.dp))
+                BotonPrimario(
+                    texto = "Ver productos",
+                    onClick = onIrAInicio
+                )
             }
-        }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 20.dp),
+                contentPadding = PaddingValues(vertical = 8.dp)
+            ) {
+                items(carrito, key = { it.producto.id }) { item ->
+                    FilaCarrito(
+                        item = item,
+                        onIncrementar = { onIncrementar(item.producto) },
+                        onDecrementar = { onDecrementar(item.producto) },
+                        onEliminar = { productoParaEliminar = item.producto }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                }
+            }
 
-        ResumenYBoton(
-            subtotal = subtotal,
-            delivery = COSTO_DELIVERY,
-            total = total,
-            onContinuarPedido = { onContinuarPedido(total) }
-        )
+            ResumenYBoton(
+                subtotal = subtotal,
+                delivery = COSTO_DELIVERY,
+                total = total,
+                onContinuarPedido = { onContinuarPedido(total) }
+            )
+        }
     }
 }
 
@@ -227,15 +298,16 @@ private fun FilaResumen(etiqueta: String, valor: Double) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun CarritoPreview() {
-    val carritoEjemento = listOf(
+    val carritoEjemplo = listOf(
         ItemCarrito(listaProductosFake[4], 1), // Coca-Cola
         ItemCarrito(listaProductosFake[0], 2), // Arroz Costeño
         ItemCarrito(listaProductosFake[2], 1)  // Leche Gloria
     )
     BodegaTheme {
         CarritoScreen(
-            carrito = carritoEjemento,
+            carrito = carritoEjemplo,
             onVolver = {},
+            onIrAInicio = {},
             onIncrementar = {},
             onDecrementar = {},
             onEliminar = {},

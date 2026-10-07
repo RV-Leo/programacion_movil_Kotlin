@@ -34,6 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,28 +49,35 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Pantalla 3: Inicio / Productos (mockup "Cliente").
- * Scaffold (topBar + bottomBar), LazyRow de categorías
- * y LazyVerticalGrid de productos en 2 columnas.
- *
- * @param productos lista completa (fake por ahora, luego vendrá de un ViewModel)
- * @param cantidadCarrito para el badge del carrito en la topBar
+ * Incluye búsqueda, categorías, ordenamiento por precio y favoritos.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InicioScreen(
     productos: List<Producto> = listaProductosFake,
     cantidadCarrito: Int,
+    idsFavoritos: Set<Int> = emptySet(),
     onVerCarrito: () -> Unit,
     onProductoClick: (Producto) -> Unit,
-    onAgregarProducto: (Producto) -> Unit
+    onAgregarProducto: (Producto) -> Unit,
+    onToggleFavorito: (Producto) -> Unit
 ) {
     var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
     var textoBusqueda by remember { mutableStateOf("") }
+    var ordenSeleccionado by remember { mutableStateOf("Por defecto") }
+
+    val opcionesOrden = listOf("Por defecto", "Menor a mayor", "Mayor a menor")
 
     val productosFiltrados = productos.filter { producto ->
         val coincideCategoria = categoriaSeleccionada == "Todos" || producto.categoria == categoriaSeleccionada
         val coincideBusqueda = producto.nombre.contains(textoBusqueda, ignoreCase = true)
         coincideCategoria && coincideBusqueda
+    }
+
+    val productosOrdenados = when (ordenSeleccionado) {
+        "Menor a mayor" -> productosFiltrados.sortedBy { it.precio }
+        "Mayor a menor" -> productosFiltrados.sortedByDescending { it.precio }
+        else -> productosFiltrados
     }
 
     Scaffold(
@@ -116,12 +124,7 @@ fun InicioScreen(
                 )
             )
 
-            Text(
-                text = "Productos destacados",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 20.dp, bottom = 4.dp)
-            )
-
+            // Categorías
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 contentPadding = PaddingValues(vertical = 8.dp)
@@ -135,28 +138,54 @@ fun InicioScreen(
                 }
             }
 
+            // Ordenamiento por precio (Menor a mayor / Mayor a menor)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = "Ordenar:",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                LazyRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(opcionesOrden) { opcion ->
+                        ChipOrden(
+                            texto = opcion,
+                            seleccionado = opcion == ordenSeleccionado,
+                            onClick = { ordenSeleccionado = opcion }
+                        )
+                    }
+                }
+            }
+
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 12.dp),
+                contentPadding = PaddingValues(vertical = 8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
             ) {
-                items(productosFiltrados, key = { it.id }) { producto ->
+                items(productosOrdenados, key = { it.id }) { producto ->
                     ProductoCard(
                         producto = producto,
+                        esFavorito = idsFavoritos.contains(producto.id),
                         onClick = { onProductoClick(producto) },
-                        onAgregar = { onAgregarProducto(producto) }
+                        onAgregar = { onAgregarProducto(producto) },
+                        onToggleFavorito = { onToggleFavorito(producto) }
                     )
                 }
             }
         }
     }
 }
-
-// Sub-composables PRIVADOS: solo los usa esta pantalla.
 
 @Composable
 private fun ChipCategoria(
@@ -171,9 +200,28 @@ private fun ChipCategoria(
         modifier = Modifier
             .background(fondo, RoundedCornerShape(20.dp))
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Text(text = texto, color = contenido, fontWeight = FontWeight.Medium)
+    }
+}
+
+@Composable
+private fun ChipOrden(
+    texto: String,
+    seleccionado: Boolean,
+    onClick: () -> Unit
+) {
+    val fondo = if (seleccionado) VerdeBodega.copy(alpha = 0.15f) else GrisClaro
+    val textoColor = if (seleccionado) VerdeBodega else MaterialTheme.colorScheme.onSurface
+
+    Row(
+        modifier = Modifier
+            .background(fondo, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Text(text = texto, color = textoColor, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -185,7 +233,8 @@ private fun InicioPreview() {
             cantidadCarrito = 3,
             onVerCarrito = {},
             onProductoClick = {},
-            onAgregarProducto = {}
+            onAgregarProducto = {},
+            onToggleFavorito = {}
         )
     }
 }

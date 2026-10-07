@@ -47,9 +47,9 @@ fun PantallaLogin(
     var contrasena by remember { mutableStateOf("") }
     var errorMensaje by remember { mutableStateOf<String?>(null) }
 
-    // Credenciales fijas de prueba
-    val correoValido = "leo@bodega.com"
-    val contrasenaValida = "1234"
+    // Credenciales fijas para el inicio de sesión
+    val correoPrueba= "leo@bodega.com"
+    val contrasenaPrueba = "1234"
 
     Column(
         modifier = Modifier
@@ -65,8 +65,8 @@ fun PantallaLogin(
             contentDescription = "Ilustración Bodega",
             modifier = Modifier
                 .fillMaxWidth()
-                .height(130.dp)
-                .clip(RoundedCornerShape(14.dp)),
+                .height(180.dp)
+                .clip(RoundedCornerShape(5.dp)),
             contentScale = ContentScale.Crop
         )
 
@@ -84,13 +84,14 @@ fun PantallaLogin(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(6.dp))
+        //Texto por si me olvido las credenciales
         Text(
-            text = "Usuario y contraseña: $correoValido / $contrasenaValida",
+            text = "Usuario y contraseña: $correoPrueba / $contrasenaPrueba",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(Modifier.height(20.dp))
-
+        //Aqui se ingresa el correo
         CampoTexto(
             etiqueta = "Correo electrónico",
             valor = correo,
@@ -109,6 +110,7 @@ fun PantallaLogin(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground
             )
+            //Aqui se ingresa la contraseña
             OutlinedTextField(
                 value = contrasena,
                 onValueChange = {
@@ -133,11 +135,11 @@ fun PantallaLogin(
         }
 
         Spacer(Modifier.height(24.dp))
-
+        //Aqui se valida las credenciales
         BotonPrimario(
             texto = "Iniciar sesión",
             onClick = {
-                if (correo.trim().lowercase() == correoValido && contrasena == contrasenaValida) {
+                if (correo.trim().lowercase() == correoPrueba && contrasena == contrasenaPrueba) {
                     errorMensaje = null
                     onIngresar()
                 } else {

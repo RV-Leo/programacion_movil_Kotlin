@@ -40,8 +40,7 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Pantalla 2: Registro de datos (mockup "Cliente").
- * Guarda su propio estado de formulario (remember) porque solo esta
- * pantalla lo necesita. Al enviar, entrega los datos ya listos.
+ * Valida que no haya campos obligatorios vacíos y marca los faltantes en rojo.
  */
 @Composable
 fun PantallaCrearCuenta(
@@ -52,6 +51,12 @@ fun PantallaCrearCuenta(
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
+
+    var intentarEnviar by remember { mutableStateOf(false) }
+
+    val nombreError = intentarEnviar && nombre.isBlank()
+    val telefonoError = intentarEnviar && telefono.isBlank()
+    val direccionError = intentarEnviar && direccion.isBlank()
 
     Column(
         modifier = Modifier
@@ -85,7 +90,9 @@ fun PantallaCrearCuenta(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Juan Pérez",
+            isError = nombreError,
+            errorMessage = if (nombreError) "Campo obligatorio" else null
         )
         Spacer(Modifier.height(16.dp))
 
@@ -94,7 +101,9 @@ fun PantallaCrearCuenta(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            isError = telefonoError,
+            errorMessage = if (telefonoError) "Campo obligatorio" else null
         )
         Spacer(Modifier.height(16.dp))
 
@@ -102,7 +111,9 @@ fun PantallaCrearCuenta(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Los Olivos 123",
+            isError = direccionError,
+            errorMessage = if (direccionError) "Campo obligatorio" else null
         )
         Spacer(Modifier.height(16.dp))
 
@@ -117,7 +128,12 @@ fun PantallaCrearCuenta(
 
         BotonPrimario(
             texto = "Crear cuenta",
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia) }
+            onClick = {
+                intentarEnviar = true
+                if (nombre.isNotBlank() && telefono.isNotBlank() && direccion.isNotBlank()) {
+                    onCrearCuenta(nombre.trim(), telefono.trim(), direccion.trim(), referencia.trim())
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))
@@ -144,7 +160,7 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.weight(1f, fill = false)
         )
-        Spacer(Modifier.size(48.dp)) // balancea el ancho del ícono de la izquierda
+        Spacer(Modifier.size(48.dp))
     }
     Text(
         text = "Completa tus datos para continuar",
@@ -159,6 +175,6 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
 @Composable
 private fun RegistroPreview() {
     BodegaTheme {
-    PantallaCrearCuenta(onVolver = {}, onCrearCuenta = { _, _, _, _ -> })
-}
+        PantallaCrearCuenta(onVolver = {}, onCrearCuenta = { _, _, _, _ -> })
+    }
 }
