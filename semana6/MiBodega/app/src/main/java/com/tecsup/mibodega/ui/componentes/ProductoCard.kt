@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -33,7 +32,7 @@ import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
- * Tarjeta de producto usada en el grid de Inicio.
+ * Tarjeta de producto usada en la lista de Inicio.
  * Solo muestra datos y avisa cuando la tocan o cuando tocan "+";
  * no sabe nada de navegación ni del carrito.
  */
@@ -51,13 +50,17 @@ fun ProductoCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             // Placeholder de imagen: reemplázalo por Image(painterResource(...))
             // cuando tengan las fotos reales de cada producto.
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1.3f)
+                    .size(88.dp)
                     .background(GrisClaro, RoundedCornerShape(10.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -69,41 +72,44 @@ fun ProductoCard(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.size(12.dp))
 
-            Text(
-                text = producto.nombre,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = producto.nombre,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = producto.descripcion,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(6.dp))
                 Text(
                     text = "S/ %.2f".format(producto.precio),
                     style = MaterialTheme.typography.labelMedium,
                     color = VerdeBodega
                 )
-                IconButton(
-                    onClick = onAgregar,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .background(VerdeBodega, CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Agregar ${producto.nombre}",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
+            }
+
+            IconButton(
+                onClick = onAgregar,
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(VerdeBodega, CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Agregar ${producto.nombre}",
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(18.dp)
+                )
             }
         }
     }
 }
-

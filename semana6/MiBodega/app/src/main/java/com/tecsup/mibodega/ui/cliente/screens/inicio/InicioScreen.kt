@@ -10,9 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,7 +54,7 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 /**
  * Pantalla 3: Inicio / Productos (mockup "Cliente").
  * La más completa: Scaffold (topBar + bottomBar), LazyRow de categorías
- * y LazyVerticalGrid de productos.
+ * y LazyColumn de productos.
  *
  * @param productos lista completa (fake por ahora, luego vendrá de un ViewModel)
  * @param cantidadCarrito para el badge del carrito en la topBar
@@ -143,14 +141,14 @@ fun InicioScreen(
                 }
             }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(vertical = 12.dp),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
             ) {
-                items(productosFiltrados) { producto ->
+                items(productosFiltrados, key = { it.id }) { producto ->
                     ProductoCard(
                         producto = producto,
                         onClick = { onProductoClick(producto) },

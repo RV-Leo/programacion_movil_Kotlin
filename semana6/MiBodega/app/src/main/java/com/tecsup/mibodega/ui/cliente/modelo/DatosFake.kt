@@ -1,12 +1,5 @@
 package com.tecsup.mibodega.ui.cliente.modelo
-
-/**
- * Datos de ejemplo (fake) para mostrar la UI sin base de datos.
- * Cuando conecten Room o una API, este archivo se reemplaza por
- * un Repository real, pero las pantallas no cambian porque ya
- * reciben una List<Producto> como parámetro.
- */
-val listaCategorias = listOf("Todos", "Bebidas", "Abarrotes", "Snacks")
+val listaCategorias = listOf("Todos", "Bebidas", "Abarrotes", "Lácteos", "Snacks", "Limpieza")
 
 val listaProductosFake = listOf(
     Producto(
@@ -28,7 +21,7 @@ val listaProductosFake = listOf(
         nombre = "Leche Gloria",
         descripcion = "Leche evaporada entera 1 L.",
         precio = 5.20,
-        categoria = "Abarrotes"
+        categoria = "Lácteos"
     ),
     Producto(
         id = 4,
@@ -43,6 +36,54 @@ val listaProductosFake = listOf(
         descripcion = "Bebida gaseosa sabor cola. Ideal para compartir en familia.",
         precio = 6.50,
         categoria = "Bebidas"
+    ),
+    Producto(
+        id = 6,
+        nombre = "Agua San Luis",
+        descripcion = "Agua sin gas en botella de 625 ml.",
+        precio = 1.80,
+        categoria = "Bebidas"
+    ),
+    Producto(
+        id = 7,
+        nombre = "Fideos Don Vittorio",
+        descripcion = "Pasta corta enriquecida de 500 g.",
+        precio = 4.20,
+        categoria = "Abarrotes"
+    ),
+    Producto(
+        id = 8,
+        nombre = "Atún Florida",
+        descripcion = "Atún en aceite vegetal en lata de 170 g.",
+        precio = 6.90,
+        categoria = "Abarrotes"
+    ),
+    Producto(
+        id = 9,
+        nombre = "Yogurt Laive",
+        descripcion = "Yogurt de fresa en botella de 1 L.",
+        precio = 7.50,
+        categoria = "Lácteos"
+    ),
+    Producto(
+        id = 10,
+        nombre = "Queso Edam",
+        descripcion = "Queso Edam en presentación de 200 g.",
+        precio = 9.80,
+        categoria = "Lácteos"
+    ),
+    Producto(
+        id = 11,
+        nombre = "Papas Lays",
+        descripcion = "Papas fritas clásicas en bolsa de 150 g.",
+        precio = 5.50,
+        categoria = "Snacks"
+    ),
+    Producto(
+        id = 12,
+        nombre = "Detergente Bolívar",
+        descripcion = "Detergente en polvo para ropa en bolsa de 800 g.",
+        precio = 8.40,
+        categoria = "Limpieza"
     )
 )
-
