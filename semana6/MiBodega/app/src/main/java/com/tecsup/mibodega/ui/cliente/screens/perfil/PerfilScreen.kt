@@ -1,8 +1,10 @@
 package com.tecsup.mibodega.ui.cliente.screens.perfil
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -47,6 +50,8 @@ fun PerfilScreen(
     telefono: String,
     direccion: String,
     referencia: String,
+    modoOscuro: Boolean,
+    onModoOscuroChanged: (Boolean) -> Unit,
     onVerMisPedidos: () -> Unit,
     onVerFavoritos: () -> Unit,
     onCerrarSesion: () -> Unit
@@ -89,7 +94,31 @@ fun PerfilScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
+
+            //Aqui se hace el cambio de tema de la app
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Modo oscuro", fontWeight = FontWeight.SemiBold)
+                    Switch(
+                        checked = modoOscuro,
+                        onCheckedChange = onModoOscuroChanged
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(16.dp))
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -172,6 +201,8 @@ private fun PerfilPreview() {
             telefono = "987654321",
             direccion = "Av. Los cerezos 123",
             referencia = "Frente al parque",
+            modoOscuro = false,
+            onModoOscuroChanged = {},
             onVerMisPedidos = {},
             onVerFavoritos = {},
             onCerrarSesion = {}

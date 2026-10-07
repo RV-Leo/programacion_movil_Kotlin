@@ -44,7 +44,6 @@ import com.tecsup.mibodega.ui.cliente.modelo.listaCategorias
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.componentes.ProductoCard
 import com.tecsup.mibodega.ui.theme.BodegaTheme
-import com.tecsup.mibodega.ui.theme.GrisClaro
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
@@ -117,8 +116,8 @@ fun InicioScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = GrisClaro,
-                    focusedContainerColor = GrisClaro,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                     unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
                     focusedBorderColor = VerdeBodega
                 )
@@ -193,7 +192,7 @@ private fun ChipCategoria(
     seleccionado: Boolean,
     onClick: () -> Unit
 ) {
-    val fondo = if (seleccionado) VerdeBodega else GrisClaro
+    val fondo = if (seleccionado) VerdeBodega else MaterialTheme.colorScheme.surfaceVariant
     val contenido = if (seleccionado) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
     Row(
@@ -212,7 +211,7 @@ private fun ChipOrden(
     seleccionado: Boolean,
     onClick: () -> Unit
 ) {
-    val fondo = if (seleccionado) VerdeBodega.copy(alpha = 0.15f) else GrisClaro
+    val fondo = if (seleccionado) VerdeBodega.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surfaceVariant
     val textoColor = if (seleccionado) VerdeBodega else MaterialTheme.colorScheme.onSurface
 
     Row(

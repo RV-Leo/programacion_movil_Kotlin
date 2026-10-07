@@ -1,5 +1,8 @@
 package com.tecsup.mibodega.ui.cliente
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -42,7 +45,10 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun AppNavegacion() {
+fun AppNavegacion(
+    modoOscuro: Boolean = false,
+    onModoOscuroChanged: (Boolean) -> Unit = {}
+) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val rutaActual = backStackEntry?.destination?.route
@@ -115,10 +121,15 @@ fun AppNavegacion() {
             }
         }
     ) { paddingInterior ->
+        // Aqui se hace esto y así para configurar las animaciones de transición entre pantallas
         NavHost(
             navController = navController,
             startDestination = Rutas.LOGIN,
-            modifier = Modifier.padding(paddingInterior)
+            modifier = Modifier.padding(paddingInterior),
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
+            exitTransition = { fadeOut(animationSpec = tween(300)) },
+            popEnterTransition = { fadeIn(animationSpec = tween(300)) },
+            popExitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             composable(Rutas.LOGIN) {
                 PantallaLogin(
@@ -266,6 +277,8 @@ fun AppNavegacion() {
                     telefono = telefonoUsuario,
                     direccion = direccionUsuario,
                     referencia = referenciaUsuario,
+                    modoOscuro = modoOscuro,
+                    onModoOscuroChanged = onModoOscuroChanged,
                     onVerMisPedidos = {
                         navController.navigate(Rutas.MIS_PEDIDOS)
                     },
