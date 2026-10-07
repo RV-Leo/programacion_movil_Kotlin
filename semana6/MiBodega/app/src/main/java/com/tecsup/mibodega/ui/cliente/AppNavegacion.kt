@@ -26,6 +26,8 @@ import com.tecsup.mibodega.ui.cliente.modelo.Producto
 import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
+import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
+import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.PantallaLogin
 import com.tecsup.mibodega.ui.cliente.screens.registro.PantallaCrearCuenta
@@ -38,6 +40,9 @@ fun AppNavegacion() {
     val rutaActual = backStackEntry?.destination?.route
     val mostrarBarra = rutaActual == Rutas.INICIO || rutaActual == Rutas.CARRITO
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
+    var nombreEntrega by remember { mutableStateOf("") }
+    var direccionEntrega by remember { mutableStateOf("") }
+    var totalPedido by remember { mutableStateOf(0.0) }
 
     Scaffold(
         bottomBar = {
@@ -155,7 +160,39 @@ fun AppNavegacion() {
                     onEliminar = { producto ->
                         carrito = carrito.filterNot { it.producto.id == producto.id }
                     },
-                    onContinuarPedido = { }
+                    onContinuarPedido = { total ->
+                        totalPedido = total
+                        navController.navigate(Rutas.DATOS_ENTREGA)
+                    }
+                )
+            }
+
+            composable(Rutas.DATOS_ENTREGA) {
+                DatosEntregaScreen(
+                    totalPedido = totalPedido,
+                    onVolver = { navController.popBackStack() },
+                    onConfirmar = { nombre, _, direccion, _ ->
+                        nombreEntrega = nombre
+                        direccionEntrega = direccion
+                        carrito = emptyList()
+                        navController.navigate(Rutas.CONFIRMACION) {
+                            popUpTo(Rutas.INICIO) { inclusive = false }
+                        }
+                    }
+                )
+            }
+
+            composable(Rutas.CONFIRMACION) {
+                ConfirmacionScreen(
+                    nombre = nombreEntrega,
+                    direccion = direccionEntrega,
+                    totalPedido = totalPedido,
+                    onVolverInicio = {
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.INICIO) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
         }

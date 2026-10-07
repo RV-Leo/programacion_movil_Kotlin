@@ -45,7 +45,7 @@ private const val COSTO_DELIVERY = 4.00
 
 /**
  * Pantalla 5: Mi carrito (mockup "Cliente").
- * No guarda estado propio: el carrito viene de ClienteApp y cualquier
+ * No guarda estado propio: el carrito viene de AppNavegacion y cualquier
  * cambio (sumar, restar, eliminar) se avisa hacia arriba con callbacks.
  */
 @Composable
@@ -55,7 +55,7 @@ fun CarritoScreen(
     onIncrementar: (Producto) -> Unit,
     onDecrementar: (Producto) -> Unit,
     onEliminar: (Producto) -> Unit,
-    onContinuarPedido: () -> Unit
+    onContinuarPedido: (Double) -> Unit
 ) {
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
     val total = subtotal + COSTO_DELIVERY
@@ -88,7 +88,7 @@ fun CarritoScreen(
             subtotal = subtotal,
             delivery = COSTO_DELIVERY,
             total = total,
-            onContinuarPedido = onContinuarPedido
+            onContinuarPedido = { onContinuarPedido(total) }
         )
     }
 }
@@ -236,8 +236,7 @@ private fun CarritoPreview() {
             onIncrementar = {},
             onDecrementar = {},
             onEliminar = {},
-            onContinuarPedido = {}
+            onContinuarPedido = { }
         )
     }
 }
-
