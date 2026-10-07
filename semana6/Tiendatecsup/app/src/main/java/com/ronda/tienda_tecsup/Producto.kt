@@ -8,18 +8,20 @@ data class Producto(
 )
 
 val productosEjemplo = listOf(
-    Producto(1, "Cuaderno universitario", 12.50, "Útiles"),
-    Producto(2, "Lapicero azul", 2.00, "Útiles"),
-    Producto(3, "Mochila TECSUP", 89.90, "Útiles"),
-    Producto(4, "Resaltadores x4", 9.50, "Útiles"),
-    Producto(5, "Audífonos inalámbricos", 79.90, "Tecnología"),
-    Producto(6, "Mouse óptico", 35.00, "Tecnología"),
-    Producto(7, "Memoria USB 64 GB", 29.90, "Tecnología"),
-    Producto(8, "Polo TECSUP", 39.90, "Ropa"),
-    Producto(9, "Casaca institucional", 99.00, "Ropa"),
-    Producto(10, "Gorra TECSUP", 24.90, "Ropa"),
-    Producto(11, "Barra de cereal", 3.50, "Snacks"),
-    Producto(12, "Agua mineral", 2.50, "Snacks")
+    Producto(1, "Audifonos", 89.00, "Tecnología"),
+    Producto(2, "Smartwatch", 199.00, "Tecnología"),
+    Producto(3, "Funda celular", 25.00, "Tecnología"),
+    Producto(4, "Cuaderno universitario", 12.50, "Útiles"),
+    Producto(5, "Lapicero azul", 2.00, "Útiles"),
+    Producto(6, "Mochila TECSUP", 89.90, "Útiles"),
+    Producto(7, "Resaltadores x4", 9.50, "Útiles"),
+    Producto(8, "Mouse óptico", 35.00, "Tecnología"),
+    Producto(9, "Memoria USB 64 GB", 29.90, "Tecnología"),
+    Producto(10, "Polo TECSUP", 39.90, "Ropa"),
+    Producto(11, "Casaca institucional", 99.00, "Ropa"),
+    Producto(12, "Gorra TECSUP", 24.90, "Ropa"),
+    Producto(13, "Barra de cereal", 3.50, "Snacks"),
+    Producto(14, "Agua mineral", 2.50, "Snacks")
 )
 
-val categoriasProducto = listOf("Útiles", "Tecnología", "Ropa", "Snacks")
+val categoriasProducto = listOf("Tecnología", "Útiles", "Ropa", "Snacks")
