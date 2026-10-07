@@ -10,9 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -47,8 +48,8 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Pantalla 3: Inicio / Productos (mockup "Cliente").
- * La más completa: Scaffold (topBar + bottomBar), LazyRow de categorías
- * y LazyColumn de productos.
+ * Scaffold (topBar + bottomBar), LazyRow de categorías
+ * y LazyVerticalGrid de productos en 2 columnas.
  *
  * @param productos lista completa (fake por ahora, luego vendrá de un ViewModel)
  * @param cantidadCarrito para el badge del carrito en la topBar
@@ -134,7 +135,9 @@ fun InicioScreen(
                 }
             }
 
-            LazyColumn(
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(vertical = 12.dp),
                 modifier = Modifier

@@ -3,6 +3,7 @@ package com.tecsup.mibodega.ui.cliente
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -30,6 +31,7 @@ import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.PantallaLogin
+import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.PantallaCrearCuenta
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
@@ -38,11 +40,17 @@ fun AppNavegacion() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val rutaActual = backStackEntry?.destination?.route
-    val mostrarBarra = rutaActual == Rutas.INICIO || rutaActual == Rutas.CARRITO
+    val mostrarBarra = rutaActual == Rutas.INICIO || rutaActual == Rutas.CARRITO || rutaActual == Rutas.PERFIL
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
     var nombreEntrega by remember { mutableStateOf("") }
     var direccionEntrega by remember { mutableStateOf("") }
     var totalPedido by remember { mutableStateOf(0.0) }
+
+    // Datos del usuario (perfil / registro)
+    var nombreUsuario by remember { mutableStateOf("Juan Pérez") }
+    var telefonoUsuario by remember { mutableStateOf("987 654 321") }
+    var direccionUsuario by remember { mutableStateOf("Av. Los Olivos 123") }
+    var referenciaUsuario by remember { mutableStateOf("Frente al parque") }
 
     Scaffold(
         bottomBar = {
@@ -78,6 +86,21 @@ fun AppNavegacion() {
                             selectedTextColor = VerdeBodega
                         )
                     )
+                    NavigationBarItem(
+                        selected = rutaActual == Rutas.PERFIL,
+                        onClick = {
+                            navController.navigate(Rutas.PERFIL) {
+                                popUpTo(Rutas.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
+                        label = { Text("Perfil") },
+                        colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                            selectedIconColor = VerdeBodega,
+                            selectedTextColor = VerdeBodega
+                        )
+                    )
                 }
             }
         }
@@ -101,7 +124,11 @@ fun AppNavegacion() {
             composable(Rutas.REGISTRO) {
                 PantallaCrearCuenta(
                     onVolver = { navController.popBackStack() },
-                    onCrearCuenta = { _, _, _, _ ->
+                    onCrearCuenta = { nombre, telefono, direccion, referencia ->
+                        nombreUsuario = nombre
+                        telefonoUsuario = telefono
+                        direccionUsuario = direccion
+                        referenciaUsuario = referencia
                         navController.navigate(Rutas.INICIO) {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
@@ -118,6 +145,7 @@ fun AppNavegacion() {
                     },
                     onAgregarProducto = { producto ->
                         carrito = agregarOSumarProducto(carrito, producto, 1)
+                        navController.navigate(Rutas.CARRITO)
                     }
                 )
             }
@@ -134,7 +162,7 @@ fun AppNavegacion() {
                     onVolver = { navController.popBackStack() },
                     onAgregarAlCarrito = { productoSeleccionado, cantidad ->
                         carrito = agregarOSumarProducto(carrito, productoSeleccionado, cantidad)
-                        navController.popBackStack()
+                        navController.navigate(Rutas.CARRITO)
                     }
                 )
             }
@@ -191,6 +219,21 @@ fun AppNavegacion() {
                         navController.navigate(Rutas.INICIO) {
                             popUpTo(Rutas.INICIO) { inclusive = false }
                             launchSingleTop = true
+                        }
+                    }
+                )
+            }
+
+            composable(Rutas.PERFIL) {
+                PerfilScreen(
+                    nombre = nombreUsuario,
+                    telefono = telefonoUsuario,
+                    direccion = direccionUsuario,
+                    referencia = referenciaUsuario,
+                    onCerrarSesion = {
+                        carrito = emptyList()
+                        navController.navigate(Rutas.LOGIN) {
+                            popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
                     }
                 )

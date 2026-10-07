@@ -1,5 +1,6 @@
 package com.tecsup.mibodega.ui.cliente.screens.carrito
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +29,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -125,18 +128,18 @@ private fun FilaCarrito(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Placeholder de imagen: reemplázalo por Image(painterResource(...))
         Box(
             modifier = Modifier
                 .size(56.dp)
-                .background(GrisClaro, RoundedCornerShape(10.dp)),
+                .clip(RoundedCornerShape(10.dp))
+                .background(GrisClaro),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.ShoppingBasket,
+            Image(
+                painter = painterResource(id = item.producto.imagenRes),
                 contentDescription = item.producto.nombre,
-                tint = VerdeBodega,
-                modifier = Modifier.size(26.dp)
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
             )
         }
 
@@ -224,14 +227,14 @@ private fun FilaResumen(etiqueta: String, valor: Double) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun CarritoPreview() {
-    val carritoEjemplo = listOf(
+    val carritoEjemento = listOf(
         ItemCarrito(listaProductosFake[4], 1), // Coca-Cola
         ItemCarrito(listaProductosFake[0], 2), // Arroz Costeño
         ItemCarrito(listaProductosFake[2], 1)  // Leche Gloria
     )
     BodegaTheme {
         CarritoScreen(
-            carrito = carritoEjemplo,
+            carrito = carritoEjemento,
             onVolver = {},
             onIncrementar = {},
             onDecrementar = {},

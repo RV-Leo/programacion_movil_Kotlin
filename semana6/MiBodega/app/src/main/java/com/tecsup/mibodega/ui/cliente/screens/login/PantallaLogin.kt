@@ -21,7 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardOptions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
 import com.tecsup.mibodega.ui.theme.BodegaTheme
+import com.tecsup.mibodega.ui.theme.RojoPrecio
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 @Composable
@@ -38,6 +39,11 @@ fun PantallaLogin(
 ) {
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
+    var errorMensaje by remember { mutableStateOf<String?>(null) }
+
+    // Credenciales fijas de prueba
+    val correoValido = "leo@bodega.com"
+    val contrasenaValida = "1234"
 
     Column(
         modifier = Modifier
@@ -59,12 +65,21 @@ fun PantallaLogin(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "Usuario y contraseña: $correoValido / $contrasenaValida",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(Modifier.height(24.dp))
 
         CampoTexto(
             etiqueta = "Correo electrónico",
             valor = correo,
-            onValorCambia = { correo = it },
+            onValorCambia = {
+                correo = it
+                errorMensaje = null
+            },
             placeholder = "nombre@correo.com",
             teclado = KeyboardType.Email
         )
@@ -78,7 +93,10 @@ fun PantallaLogin(
             )
             OutlinedTextField(
                 value = contrasena,
-                onValueChange = { contrasena = it },
+                onValueChange = {
+                    contrasena = it
+                    errorMensaje = null
+                },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 placeholder = { Text("Ingresa tu contraseña") },
@@ -86,11 +104,28 @@ fun PantallaLogin(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
         }
+
+        if (errorMensaje != null) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = errorMensaje!!,
+                style = MaterialTheme.typography.bodySmall,
+                color = RojoPrecio
+            )
+        }
+
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Iniciar sesión",
-            onClick = onIngresar,
+            onClick = {
+                if (correo.trim().lowercase() == correoValido && contrasena == contrasenaValida) {
+                    errorMensaje = null
+                    onIngresar()
+                } else {
+                    errorMensaje = "Correo o contraseña incorrectos"
+                }
+            },
             habilitado = correo.isNotBlank() && contrasena.isNotBlank()
         )
         TextButton(onClick = onCrearCuenta) {
