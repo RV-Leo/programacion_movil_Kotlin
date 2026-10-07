@@ -86,7 +86,7 @@ fun AppNavegacion() {
                             contentColor = MaterialTheme.colorScheme.onPrimary
                         ) {
                             Text(
-                                text = "JL",
+                                text = "LR",
                                 modifier = Modifier.padding(16.dp),
                                 style = MaterialTheme.typography.titleMedium
                             )
