@@ -1,13 +1,24 @@
 package com.tecsup.mibodega.ui.cliente
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
@@ -18,91 +29,135 @@ import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.PantallaLogin
 import com.tecsup.mibodega.ui.cliente.screens.registro.PantallaCrearCuenta
+import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 @Composable
 fun AppNavegacion() {
     val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val rutaActual = backStackEntry?.destination?.route
+    val mostrarBarra = rutaActual == Rutas.INICIO || rutaActual == Rutas.CARRITO
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
 
-    NavHost(
-        navController = navController,
-        startDestination = Rutas.LOGIN
-    ) {
-        composable(Rutas.LOGIN) {
-            PantallaLogin(
-                onIngresar = {
-                    navController.navigate(Rutas.INICIO) {
-                        popUpTo(Rutas.LOGIN) { inclusive = true }
-                    }
-                },
-                onCrearCuenta = { navController.navigate(Rutas.REGISTRO) }
-            )
-        }
-
-        composable(Rutas.REGISTRO) {
-            PantallaCrearCuenta(
-                onVolver = { navController.popBackStack() },
-                onCrearCuenta = { _, _, _, _ ->
-                    navController.navigate(Rutas.INICIO) {
-                        popUpTo(Rutas.LOGIN) { inclusive = true }
-                    }
+    Scaffold(
+        bottomBar = {
+            if (mostrarBarra) {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = rutaActual == Rutas.INICIO,
+                        onClick = {
+                            navController.navigate(Rutas.INICIO) {
+                                popUpTo(Rutas.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+                        label = { Text("Inicio") },
+                        colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                            selectedIconColor = VerdeBodega,
+                            selectedTextColor = VerdeBodega
+                        )
+                    )
+                    NavigationBarItem(
+                        selected = rutaActual == Rutas.CARRITO,
+                        onClick = {
+                            navController.navigate(Rutas.CARRITO) {
+                                popUpTo(Rutas.INICIO) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Carrito") },
+                        label = { Text("Carrito") },
+                        colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+                            selectedIconColor = VerdeBodega,
+                            selectedTextColor = VerdeBodega
+                        )
+                    )
                 }
-            )
+            }
         }
+    ) { paddingInterior ->
+        NavHost(
+            navController = navController,
+            startDestination = Rutas.LOGIN,
+            modifier = Modifier.padding(paddingInterior)
+        ) {
+            composable(Rutas.LOGIN) {
+                PantallaLogin(
+                    onIngresar = {
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.LOGIN) { inclusive = true }
+                        }
+                    },
+                    onCrearCuenta = { navController.navigate(Rutas.REGISTRO) }
+                )
+            }
 
-        composable(Rutas.INICIO) {
-            InicioScreen(
-                cantidadCarrito = carrito.sumOf { it.cantidad },
-                onVerCarrito = { navController.navigate(Rutas.CARRITO) },
-                onProductoClick = { producto ->
-                    navController.navigate(Rutas.detalle(producto.id))
-                },
-                onAgregarProducto = { producto ->
-                    carrito = agregarOSumarProducto(carrito, producto, 1)
-                }
-            )
-        }
-
-        composable(
-            route = Rutas.DETALLE,
-            arguments = listOf(navArgument("productoId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val productoId = backStackEntry.arguments?.getInt("productoId") ?: 0
-            val producto = listaProductosFake.first { it.id == productoId }
-
-            DetalleProductoScreen(
-                producto = producto,
-                onVolver = { navController.popBackStack() },
-                onAgregarAlCarrito = { productoSeleccionado, cantidad ->
-                    carrito = agregarOSumarProducto(carrito, productoSeleccionado, cantidad)
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(Rutas.CARRITO) {
-            CarritoScreen(
-                carrito = carrito,
-                onVolver = { navController.popBackStack() },
-                onIncrementar = { producto ->
-                    carrito = carrito.map {
-                        if (it.producto.id == producto.id) it.copy(cantidad = it.cantidad + 1) else it
-                    }
-                },
-                onDecrementar = { producto ->
-                    carrito = carrito.mapNotNull {
-                        when {
-                            it.producto.id != producto.id -> it
-                            it.cantidad > 1 -> it.copy(cantidad = it.cantidad - 1)
-                            else -> null
+            composable(Rutas.REGISTRO) {
+                PantallaCrearCuenta(
+                    onVolver = { navController.popBackStack() },
+                    onCrearCuenta = { _, _, _, _ ->
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
                     }
-                },
-                onEliminar = { producto ->
-                    carrito = carrito.filterNot { it.producto.id == producto.id }
-                },
-                onContinuarPedido = { }
-            )
+                )
+            }
+
+            composable(Rutas.INICIO) {
+                InicioScreen(
+                    cantidadCarrito = carrito.sumOf { it.cantidad },
+                    onVerCarrito = { navController.navigate(Rutas.CARRITO) },
+                    onProductoClick = { producto ->
+                        navController.navigate(Rutas.detalle(producto.id))
+                    },
+                    onAgregarProducto = { producto ->
+                        carrito = agregarOSumarProducto(carrito, producto, 1)
+                    }
+                )
+            }
+
+            composable(
+                route = Rutas.DETALLE,
+                arguments = listOf(navArgument("productoId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val productoId = backStackEntry.arguments?.getInt("productoId") ?: 0
+                val producto = listaProductosFake.first { it.id == productoId }
+
+                DetalleProductoScreen(
+                    producto = producto,
+                    onVolver = { navController.popBackStack() },
+                    onAgregarAlCarrito = { productoSeleccionado, cantidad ->
+                        carrito = agregarOSumarProducto(carrito, productoSeleccionado, cantidad)
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Rutas.CARRITO) {
+                CarritoScreen(
+                    carrito = carrito,
+                    onVolver = { navController.popBackStack() },
+                    onIncrementar = { producto ->
+                        carrito = carrito.map {
+                            if (it.producto.id == producto.id) it.copy(cantidad = it.cantidad + 1) else it
+                        }
+                    },
+                    onDecrementar = { producto ->
+                        carrito = carrito.mapNotNull {
+                            when {
+                                it.producto.id != producto.id -> it
+                                it.cantidad > 1 -> it.copy(cantidad = it.cantidad - 1)
+                                else -> null
+                            }
+                        }
+                    },
+                    onEliminar = { producto ->
+                        carrito = carrito.filterNot { it.producto.id == producto.id }
+                    },
+                    onContinuarPedido = { }
+                )
+            }
         }
     }
 }

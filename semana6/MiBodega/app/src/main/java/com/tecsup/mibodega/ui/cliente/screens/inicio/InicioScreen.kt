@@ -15,10 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Badge
@@ -27,8 +23,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -96,7 +90,6 @@ fun InicioScreen(
                 }
             )
         },
-        bottomBar = { BarraInferior() }
     ) { paddingInterno ->
         Column(
             modifier = Modifier
@@ -178,31 +171,6 @@ private fun ChipCategoria(
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Text(text = texto, color = contenido, fontWeight = FontWeight.Medium)
-    }
-}
-
-@Composable
-private fun BarraInferior() {
-    var seleccionado by remember { mutableStateOf(0) }
-    val items = listOf(
-        Triple("Inicio", Icons.Default.Home, 0),
-        Triple("Categorías", Icons.Default.List, 1),
-        Triple("Pedidos", Icons.Default.Receipt, 2),
-        Triple("Perfil", Icons.Default.Person, 3)
-    )
-    NavigationBar {
-        items.forEach { (etiqueta, icono, indice) ->
-            NavigationBarItem(
-                selected = seleccionado == indice,
-                onClick = { seleccionado = indice },
-                icon = { Icon(icono, contentDescription = etiqueta) },
-                label = { Text(etiqueta) },
-                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                    selectedIconColor = VerdeBodega,
-                    selectedTextColor = VerdeBodega
-                )
-            )
-        }
     }
 }
 
