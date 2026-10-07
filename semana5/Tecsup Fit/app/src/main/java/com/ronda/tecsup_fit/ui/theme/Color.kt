@@ -12,4 +12,7 @@ val ConfirmadaGreenText = Color(0xFF1B6B56)
 val CompletadaGrayBg = Color(0xFFEEEEEE)
 val CompletadaGrayText = Color(0xFF616161)
 
+val CanceladaRedBg = Color(0xFFFFEBEE)
+val CanceladaRedText = Color(0xFFC62828)
+
 val CardBgColor = Color(0xFFF2F4F3)
