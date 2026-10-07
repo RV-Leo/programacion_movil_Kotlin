@@ -92,7 +92,7 @@ fun AppNavegacion() {
                             )
                         }
                         Column(modifier = Modifier.padding(start = 16.dp)) {
-                            Text("Juan José León Suiyon", style = MaterialTheme.typography.titleSmall)
+                            Text("Leonardo Ronda", style = MaterialTheme.typography.titleSmall)
                             Text("Estudiante TECSUP", style = MaterialTheme.typography.bodySmall)
                         }
                     }
