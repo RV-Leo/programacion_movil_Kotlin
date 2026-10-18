@@ -6,14 +6,9 @@ import com.tecsup.cafecampus.model.Rol
 
 object DatosIniciales {
     suspend fun sembrar(db: CafeDatabase) {
-        if (db.usuarioDao().contar() == 0) {
-            val usuarios = listOf(
-                Usuario(
-                    nombre = "Leonardo Ronda",
-                    correo = "leonardo.ronda@tecsup.edu.pe",
-                    clave = "123456",
-                    rol = Rol.CLIENTE.name
-                ),
+        // Asegurar que los usuarios siempre existan en la BD sin importar ejecuciones previas
+        if (db.usuarioDao().login("admin@tecsup.edu.pe", "Admin00") == null) {
+            db.usuarioDao().insertar(
                 Usuario(
                     nombre = "Administrador",
                     correo = "admin@tecsup.edu.pe",
@@ -21,11 +16,49 @@ object DatosIniciales {
                     rol = Rol.ADMIN.name
                 )
             )
-            for (u in usuarios) {
-                db.usuarioDao().insertar(u)
-            }
+        }
+        if (db.usuarioDao().login("admin@tecsup.edu.pe", "admin") == null) {
+            db.usuarioDao().insertar(
+                Usuario(
+                    nombre = "Administrador",
+                    correo = "admin@tecsup.edu.pe",
+                    clave = "admin",
+                    rol = Rol.ADMIN.name
+                )
+            )
+        }
+        if (db.usuarioDao().login("admin@cafe.test", "admin") == null) {
+            db.usuarioDao().insertar(
+                Usuario(
+                    nombre = "Administrador Cafe",
+                    correo = "admin@cafe.test",
+                    clave = "admin",
+                    rol = Rol.ADMIN.name
+                )
+            )
+        }
+        if (db.usuarioDao().login("juan@campus.test", "1234") == null) {
+            db.usuarioDao().insertar(
+                Usuario(
+                    nombre = "Juan Pérez",
+                    correo = "juan@campus.test",
+                    clave = "1234",
+                    rol = Rol.CLIENTE.name
+                )
+            )
+        }
+        if (db.usuarioDao().login("leonardo.ronda@tecsup.edu.pe", "123456") == null) {
+            db.usuarioDao().insertar(
+                Usuario(
+                    nombre = "Leonardo Ronda",
+                    correo = "leonardo.ronda@tecsup.edu.pe",
+                    clave = "123456",
+                    rol = Rol.CLIENTE.name
+                )
+            )
         }
 
+        // Sembrar productos si la tabla de productos está vacía
         if (db.productoDao().contar() == 0) {
             val productos = listOf(
                 Producto(
@@ -40,7 +73,7 @@ object DatosIniciales {
                     descripcion = "Espresso recién pasado combinado con leche al vapor",
                     categoria = "Bebidas",
                     precio = 5.50,
-                    disponible = true,
+                    disponible = true
                 ),
                 Producto(
                     nombre = "Capuchino",
