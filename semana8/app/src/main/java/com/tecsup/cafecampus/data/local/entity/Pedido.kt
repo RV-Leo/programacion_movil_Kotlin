@@ -23,7 +23,7 @@ data class Pedido(
     val id: Int = 0,
     val clienteId: Int,
     val fecha: Long = System.currentTimeMillis(),
-    val estado: String = EstadoPedido.PENDIENTE.name,
+    val estado: String = EstadoPedido.RECIBIDO.name,
     val total: Double,
     val horaRecojo: String,
     val pago: String,

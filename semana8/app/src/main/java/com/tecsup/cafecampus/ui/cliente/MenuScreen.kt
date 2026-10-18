@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.Badge
@@ -45,7 +46,7 @@ private val FondoMenu = Color(0xFFFFFBF6)
 private val NaranjaCafe = Color(0xFFEB5A0A)
 
 @Composable
-fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onCerrarSesion: () -> Unit) {
+fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () -> Unit, onMisPedidos: () -> Unit, onCerrarSesion: () -> Unit) {
     val productos by vm.productos.collectAsState()
     val cantidadCarrito by vm.cantidadEnCarrito.collectAsState()
     var busqueda by remember { mutableStateOf("") }
@@ -76,7 +77,7 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onCerrarSesion: () 
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BadgedBox(badge = { if (cantidadCarrito > 0) Badge { Text(cantidadCarrito.toString()) } }) {
-                    IconButton(onClick = {}) {
+                    IconButton(onClick = onAbrirCarrito) {
                         Icon(Icons.Default.ShoppingBag, contentDescription = "Bolsa, $cantidadCarrito productos", tint = Color(0xFF30343B))
                     }
                 }
@@ -144,6 +145,7 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onCerrarSesion: () 
         }
     }
 }
+
 
 
 

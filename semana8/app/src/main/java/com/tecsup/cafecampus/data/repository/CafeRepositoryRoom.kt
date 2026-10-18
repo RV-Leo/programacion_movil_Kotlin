@@ -60,7 +60,7 @@ class CafeRepositoryRoom(
             horaRecojo = horaRecojo,
             pago = pago,
             nota = nota,
-            estado = EstadoPedido.PENDIENTE.name
+            estado = EstadoPedido.RECIBIDO.name
         )
 
         val detalles = items.map { item ->
@@ -101,3 +101,4 @@ class CafeRepositoryRoom(
         return pedidoDao.pedidosDesde(inicioDia)
     }
 }
+

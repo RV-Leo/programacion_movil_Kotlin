@@ -7,5 +7,10 @@ sealed class Rutas(val ruta: String) {
     object DetalleProducto : Rutas("detalle/{productoId}") {
         fun crear(productoId: Int) = "detalle/$productoId"
     }
+    object ConfirmarPedido : Rutas("confirmar-pedido")
+    object Seguimiento : Rutas("seguimiento/{pedidoId}") {
+        fun crear(pedidoId: Int) = "seguimiento/$pedidoId"
+    }
+    object MisPedidos : Rutas("mis-pedidos")
     object Panel : Rutas("panel")
 }

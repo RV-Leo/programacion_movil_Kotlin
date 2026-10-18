@@ -1,9 +1,20 @@
 package com.tecsup.cafecampus.model
 
 enum class EstadoPedido {
-    PENDIENTE,
-    EN_PREPARACION,
+    RECIBIDO,
+    PREPARANDO,
     LISTO,
     ENTREGADO,
-    CANCELADO
+    CANCELADO;
+
+    companion object {
+        fun desde(valor: String?): EstadoPedido = when (valor?.uppercase()) {
+            "PENDIENTE", "RECIBIDO" -> RECIBIDO
+            "EN_PREPARACION", "PREPARANDO" -> PREPARANDO
+            "LISTO" -> LISTO
+            "ENTREGADO" -> ENTREGADO
+            "CANCELADO" -> CANCELADO
+            else -> RECIBIDO
+        }
+    }
 }
