@@ -18,10 +18,12 @@ fun CafeButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = Color(0xFFE65100),
-    contentColor: Color = Color.White
+    contentColor: Color = Color.White,
+    enabled: Boolean = true
 ) {
     Button(
         onClick = onClick,
+        enabled = enabled,
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp),
