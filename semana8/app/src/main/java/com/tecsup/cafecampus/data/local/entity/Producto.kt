@@ -11,5 +11,4 @@ data class Producto(
     val categoria: String,
     val precio: Double,
     val disponible: Boolean = true,
-    val icono: String
 )
