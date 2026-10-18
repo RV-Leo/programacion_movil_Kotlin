@@ -19,3 +19,4 @@ fun imagenProducto(nombre: String): Int {
         else -> R.drawable.cafe_americano
     }
 }
+

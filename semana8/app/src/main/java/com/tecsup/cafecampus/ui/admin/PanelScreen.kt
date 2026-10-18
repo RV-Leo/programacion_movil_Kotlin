@@ -15,6 +15,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -47,6 +48,8 @@ fun PanelScreen(
     vm: PanelAdminViewModel,
     pedidosVm: PedidosAdminViewModel,
     onVerPedidos: () -> Unit,
+    onVerMenu: () -> Unit,
+    onAjustes: () -> Unit,
     onCerrarSesion: () -> Unit
 ) {
     val nuevos by vm.nuevos.collectAsState()
@@ -57,18 +60,27 @@ fun PanelScreen(
     val pedidosNuevos by pedidosVm.pedidos.collectAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize().background(FondoPanel).verticalScroll(rememberScrollState()).padding(18.dp)
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).verticalScroll(rememberScrollState()).padding(18.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f)) {
                 Text("Panel de control", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Text("Cafetería · Hoy", color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                Text("Cafetería · Hoy", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+            }
+            IconButton(onClick = onAjustes) {
+                Icon(Icons.Default.Settings, contentDescription = "Ajustes")
             }
             IconButton(onClick = onCerrarSesion) {
                 Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
             }
         }
 
+        Button(
+            onClick = onVerMenu,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Morado)
+        ) { Text("Gestionar menú") }
+        Spacer(Modifier.height(8.dp))
         Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(9.dp), modifier = Modifier.fillMaxWidth()) {
             ContadorCard("Nuevos", nuevos, Color(0xFFE1ECFF), Color(0xFF2868D8), Modifier.weight(1f))
@@ -108,9 +120,9 @@ fun PanelScreen(
             Card(
                 modifier = Modifier.fillMaxWidth().padding(top = 6.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
-                Text("No hay pedidos nuevos", modifier = Modifier.padding(16.dp), color = Color.Gray)
+                Text("No hay pedidos nuevos", modifier = Modifier.padding(16.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             pedidosNuevos.take(4).forEach { pedido ->
@@ -143,7 +155,7 @@ private fun PedidoNuevoResumen(pedido: PedidoConDetalle, onPreparar: () -> Unit)
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
@@ -154,10 +166,10 @@ private fun PedidoNuevoResumen(pedido: PedidoConDetalle, onPreparar: () -> Unit)
                 Text(
                     pedido.detalles.joinToString(" · ") { "${it.cantidad} x ${it.nombreProducto}" },
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1
                 )
-                Text("Recojo ${pedido.pedido.horaRecojo} · S/ ${"%.2f".format(Locale.US, pedido.pedido.total)}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text("Recojo ${pedido.pedido.horaRecojo} · S/ ${"%.2f".format(Locale.US, pedido.pedido.total)}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Button(
                 onClick = onPreparar,
@@ -167,4 +179,7 @@ private fun PedidoNuevoResumen(pedido: PedidoConDetalle, onPreparar: () -> Unit)
         }
     }
 }
+
+
+
 

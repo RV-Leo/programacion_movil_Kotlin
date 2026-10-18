@@ -1,7 +1,7 @@
 package com.tecsup.cafecampus.ui.cliente
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,11 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.tecsup.cafecampus.ui.components.CafeButton
+import androidx.compose.ui.res.painterResource
 import com.tecsup.cafecampus.ui.components.imagenProducto
 import com.tecsup.cafecampus.viewmodel.MenuViewModel
 import java.util.Locale
@@ -66,7 +66,7 @@ fun DetalleProductoScreen(
 
     if (producto == null) {
         Box(
-            modifier = Modifier.fillMaxSize().background(FondoDetalle),
+            modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
             androidx.compose.material3.CircularProgressIndicator(color = NaranjaDetalle)
@@ -77,7 +77,7 @@ fun DetalleProductoScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(FondoDetalle)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
@@ -94,7 +94,7 @@ fun DetalleProductoScreen(
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
-                color = Tinta,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             Spacer(Modifier.size(42.dp))
@@ -112,7 +112,7 @@ fun DetalleProductoScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(producto.nombre, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = Tinta)
+            Text(producto.nombre, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
             Text(
                 "S/ ${"%.2f".format(Locale.US, producto.precio)}",
                 style = MaterialTheme.typography.titleMedium,
@@ -138,27 +138,27 @@ fun DetalleProductoScreen(
         }
 
         Text(producto.descripcion, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF747474))
-        Text("Cantidad", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Tinta)
+        Text("Cantidad", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(
-                modifier = Modifier.clip(RoundedCornerShape(50.dp)).background(Color.White).padding(horizontal = 5.dp, vertical = 3.dp),
+                modifier = Modifier.clip(RoundedCornerShape(50.dp)).background(MaterialTheme.colorScheme.surface).padding(horizontal = 5.dp, vertical = 3.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { if (cantidad > 1) cantidad-- }, enabled = cantidad > 1, modifier = Modifier.size(38.dp)) {
                     Icon(Icons.Default.Remove, contentDescription = "Restar", tint = NaranjaDetalle)
                 }
-                Text(cantidad.toString(), modifier = Modifier.padding(horizontal = 14.dp), fontWeight = FontWeight.Bold, color = Tinta)
+                Text(cantidad.toString(), modifier = Modifier.padding(horizontal = 14.dp), fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                 IconButton(onClick = { cantidad++ }, enabled = producto.disponible, modifier = Modifier.size(38.dp)) {
                     Icon(Icons.Default.Add, contentDescription = "Sumar", tint = NaranjaDetalle)
                 }
             }
         }
 
-        Text("Nota para la cocina", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = Tinta)
+        Text("Nota para la cocina", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
         OutlinedTextField(
             value = nota,
             onValueChange = { nota = it },
@@ -169,8 +169,8 @@ fun DetalleProductoScreen(
             maxLines = 3,
             shape = RoundedCornerShape(14.dp),
             colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
-                focusedContainerColor = Color.White,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedBorderColor = Color(0xFFE7E3DF),
                 focusedBorderColor = NaranjaDetalle
             )

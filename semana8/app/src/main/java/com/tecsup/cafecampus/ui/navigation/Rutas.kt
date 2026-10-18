@@ -13,5 +13,14 @@ sealed class Rutas(val ruta: String) {
     }
     object MisPedidos : Rutas("mis-pedidos")
     object Panel : Rutas("panel")
+    object Ajustes : Rutas("ajustes")
     object PedidosAdmin : Rutas("pedidos-admin")
+    object DetallePedidoAdmin : Rutas("detalle-pedido-admin/{pedidoId}") {
+        fun crear(pedidoId: Int) = "detalle-pedido-admin/$pedidoId"
+    }
+    object MenuAdmin : Rutas("menu-admin")
+    object FormularioProducto : Rutas("form-producto?productoId={productoId}") {
+        fun nuevo() = "form-producto"
+        fun editar(productoId: Int) = "form-producto?productoId=$productoId"
+    }
 }

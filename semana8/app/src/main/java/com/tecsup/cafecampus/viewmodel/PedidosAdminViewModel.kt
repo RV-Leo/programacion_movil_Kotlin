@@ -21,24 +21,26 @@ class PedidosAdminViewModel(private val repo: CafeRepository) : ViewModel() {
         .flatMapLatest { estado -> repo.observarPedidosPorEstado(estado) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    fun pedido(id: Int): StateFlow<PedidoConDetalle?> = repo.observarPedido(id)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
     fun seleccionarEstado(estado: EstadoPedido) {
         estadoSeleccionado.value = estado
     }
 
     fun avanzar(pedido: PedidoConDetalle) {
         val siguiente = EstadoPedido.desde(pedido.pedido.estado).siguiente() ?: return
-        viewModelScope.launch {
-            repo.cambiarEstado(pedido.pedido.id, siguiente)
-        }
+        cambiarEstado(pedido, siguiente)
     }
 
     fun cancelar(pedido: PedidoConDetalle) {
         val estadoActual = EstadoPedido.desde(pedido.pedido.estado)
         if (estadoActual == EstadoPedido.ENTREGADO || estadoActual == EstadoPedido.CANCELADO) return
-        viewModelScope.launch {
-            repo.cambiarEstado(pedido.pedido.id, EstadoPedido.CANCELADO)
-        }
+        cambiarEstado(pedido, EstadoPedido.CANCELADO)
+    }
+
+    fun cambiarEstado(pedido: PedidoConDetalle, estado: EstadoPedido) {
+        viewModelScope.launch { repo.cambiarEstado(pedido.pedido.id, estado) }
     }
 }
-
 

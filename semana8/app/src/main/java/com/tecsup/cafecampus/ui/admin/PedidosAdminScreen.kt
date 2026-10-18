@@ -1,6 +1,7 @@
 package com.tecsup.cafecampus.ui.admin
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,12 +43,12 @@ private val Fondo = Color(0xFFF8F7FC)
 private val Morado = Color(0xFF5546E8)
 
 @Composable
-fun PedidosAdminScreen(vm: PedidosAdminViewModel, onVolver: () -> Unit) {
+fun PedidosAdminScreen(vm: PedidosAdminViewModel, onVolver: () -> Unit, onAbrirDetalle: (Int) -> Unit) {
     val pedidos by vm.pedidos.collectAsState()
     val seleccionado by vm.estadoSeleccionado.collectAsState()
     val estados = listOf(EstadoPedido.RECIBIDO, EstadoPedido.PREPARANDO, EstadoPedido.LISTO, EstadoPedido.ENTREGADO, EstadoPedido.CANCELADO)
 
-    Column(modifier = Modifier.fillMaxSize().background(Fondo).padding(horizontal = 16.dp, vertical = 10.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 16.dp, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onVolver) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver al panel")
@@ -77,14 +78,14 @@ fun PedidosAdminScreen(vm: PedidosAdminViewModel, onVolver: () -> Unit) {
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
-            ) { Text("No hay pedidos ${seleccionado.etiqueta().lowercase()}", color = Color.Gray) }
+            ) { Text("No hay pedidos ${seleccionado.etiqueta().lowercase()}", color = MaterialTheme.colorScheme.onSurfaceVariant) }
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(pedidos, key = { it.pedido.id }) { pedido ->
                     PedidoAdminCard(
                         pedido = pedido,
                         onAvanzar = { vm.avanzar(pedido) },
-                        onCancelar = { vm.cancelar(pedido) }
+                        onCancelar = { vm.cancelar(pedido) }, onAbrirDetalle = { onAbrirDetalle(pedido.pedido.id) }
                     )
                 }
             }
@@ -93,13 +94,13 @@ fun PedidosAdminScreen(vm: PedidosAdminViewModel, onVolver: () -> Unit) {
 }
 
 @Composable
-private fun PedidoAdminCard(pedido: PedidoConDetalle, onAvanzar: () -> Unit, onCancelar: () -> Unit) {
+private fun PedidoAdminCard(pedido: PedidoConDetalle, onAvanzar: () -> Unit, onCancelar: () -> Unit, onAbrirDetalle: () -> Unit) {
     val estado = EstadoPedido.desde(pedido.pedido.estado)
     val siguiente = estado.siguiente()
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(17.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(Modifier.fillMaxWidth().padding(13.dp)) {
@@ -111,13 +112,13 @@ private fun PedidoAdminCard(pedido: PedidoConDetalle, onAvanzar: () -> Unit, onC
                 pedido.detalles.joinToString(" · ") { "${it.cantidad} x ${it.nombreProducto}" },
                 modifier = Modifier.padding(top = 5.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top = 7.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("Recojo ${pedido.pedido.horaRecojo}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Text("Recojo ${pedido.pedido.horaRecojo}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Text("S/ ${"%.2f".format(Locale.US, pedido.pedido.total)}", color = Morado, fontWeight = FontWeight.Bold)
             }
             Text(
@@ -154,3 +155,6 @@ private fun EstadoPedido.etiqueta(): String = when (this) {
     EstadoPedido.ENTREGADO -> "Entregados"
     EstadoPedido.CANCELADO -> "Cancelados"
 }
+
+
+
