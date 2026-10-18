@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.tecsup.cafecampus.model.EstadoPedido
 
 @Entity(
     tableName = "pedidos",
@@ -11,17 +12,20 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = Usuario::class,
             parentColumns = ["id"],
-            childColumns = ["usuarioId"],
+            childColumns = ["clienteId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("usuarioId")]
+    indices = [Index("clienteId")]
 )
 data class Pedido(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val usuarioId: Int,
-    val fecha: String,
-    val estado: String = "Pendiente",
-    val total: Double
+    val clienteId: Int,
+    val fecha: Long = System.currentTimeMillis(),
+    val estado: String = EstadoPedido.PENDIENTE.name,
+    val total: Double,
+    val horaRecojo: String,
+    val pago: String,
+    val nota: String = ""
 )

@@ -13,21 +13,16 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["pedidoId"],
             onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
-            entity = Producto::class,
-            parentColumns = ["id"],
-            childColumns = ["productoId"],
-            onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("pedidoId"), Index("productoId")]
+    indices = [Index("pedidoId")]
 )
 data class DetallePedido(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val pedidoId: Int,
-    val productoId: Int,
+    val productoId: Int = 0,
+    val nombreProducto: String,
     val cantidad: Int,
     val precioUnitario: Double
 )
