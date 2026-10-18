@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.tecsup.cafecampus.data.local.CafeDatabase
@@ -32,7 +34,8 @@ class MainActivity : ComponentActivity() {
         val factory = CafeViewModelFactory(repository, prefs)
 
         setContent {
-            CafeCampusTheme {
+            val modoOscuro by prefs.modoOscuro.collectAsState(initial = false)
+            CafeCampusTheme(darkTheme = modoOscuro) {
                 val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {

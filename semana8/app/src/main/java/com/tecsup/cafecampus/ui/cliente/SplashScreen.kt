@@ -19,8 +19,10 @@ fun SplashScreen(
     onNavigate: (String) -> Unit
 ) {
     val perfilActivo by vm.perfilActivo.collectAsState()
+    val sesionInicializada by vm.sesionInicializada.collectAsState()
 
-    LaunchedEffect(perfilActivo) {
+    LaunchedEffect(perfilActivo, sesionInicializada) {
+        if (!sesionInicializada) return@LaunchedEffect
         delay(800)
         when {
             perfilActivo.equals(Rol.CLIENTE.name, ignoreCase = true) -> onNavigate("menu")

@@ -69,7 +69,7 @@ fun LoginScreen(
         Text(
             text = "Ingresa para continuar",
             fontSize = 14.sp,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.Start)
         )
 
@@ -80,7 +80,7 @@ fun LoginScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFFF2F2F2))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(4.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -99,7 +99,7 @@ fun LoginScreen(
                 Text(
                     text = "Estudiante",
                     fontWeight = FontWeight.Bold,
-                    color = if (isCliente) Color.White else Color.Gray
+                    color = if (isCliente) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -118,7 +118,7 @@ fun LoginScreen(
                 Text(
                     text = "Administrador",
                     fontWeight = FontWeight.Bold,
-                    color = if (!isCliente) Color.White else Color.Gray
+                    color = if (!isCliente) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -166,7 +166,7 @@ fun LoginScreen(
         Text(
             text = "¿Olvidaste tu contraseña?",
             fontSize = 12.sp,
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.End)
         )
 

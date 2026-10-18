@@ -56,7 +56,7 @@ fun MisPedidosScreen(
         else estado in listOf(EstadoPedido.ENTREGADO, EstadoPedido.CANCELADO)
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Fondo).padding(18.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onVolver) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -75,7 +75,7 @@ fun MisPedidosScreen(
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(50.dp),
                     colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color.White,
+                        selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                         selectedLabelColor = Naranja
                     )
                 )
@@ -88,7 +88,7 @@ fun MisPedidosScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(if (pestaña == "Activos") "No tienes pedidos activos" else "Aún no hay pedidos en tu historial", color = Color.Gray)
+                Text(if (pestaña == "Activos") "No tienes pedidos activos" else "Aún no hay pedidos en tu historial", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -106,22 +106,22 @@ private fun PedidoClienteCard(pedido: PedidoConDetalle, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(17.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(Modifier.fillMaxWidth().padding(14.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Pedido #${pedido.pedido.id.toString().padStart(4, '0')}", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold)
-                Text("›", color = Color.Gray, style = MaterialTheme.typography.titleLarge)
+                Text("›", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.titleLarge)
             }
             Text(
                 pedido.detalles.joinToString(" · ") { "${it.nombreProducto} x${it.cantidad}" },
                 modifier = Modifier.padding(top = 4.dp),
                 style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
             )
-            Text("Recojo ${pedido.pedido.horaRecojo}", modifier = Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text("Recojo ${pedido.pedido.horaRecojo}", modifier = Modifier.padding(top = 4.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(7.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                 EstadoChip(estado)

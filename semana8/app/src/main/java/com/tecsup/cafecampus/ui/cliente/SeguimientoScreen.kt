@@ -51,7 +51,7 @@ fun SeguimientoScreen(
     val pedidoFlow = remember(vm, pedidoId) { vm.pedido(pedidoId) }
     val resultado by pedidoFlow.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize().background(Fondo).padding(18.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(18.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = onVolver) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -90,12 +90,12 @@ fun SeguimientoScreen(
             if (estado == EstadoPedido.CANCELADO) EstadoChip(estado) else StepperEstado(estado)
         }
 
-        Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+        Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
             Column(Modifier.fillMaxWidth().padding(14.dp)) {
                 Text(
                     resultado!!.detalles.joinToString(" · ") { "${it.cantidad} x ${it.nombreProducto}" },
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     "Total  S/ ${"%.2f".format(Locale.US, pedido.total)}",

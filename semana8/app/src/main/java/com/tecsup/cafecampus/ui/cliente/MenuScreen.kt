@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.FilterChip
@@ -46,7 +47,7 @@ private val FondoMenu = Color(0xFFFFFBF6)
 private val NaranjaCafe = Color(0xFFEB5A0A)
 
 @Composable
-fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () -> Unit, onMisPedidos: () -> Unit, onCerrarSesion: () -> Unit) {
+fun MenuScreen(vm: MenuViewModel, recibirPedidos: Boolean, onProducto: (Int) -> Unit, onAbrirCarrito: () -> Unit, onAjustes: () -> Unit, onMisPedidos: () -> Unit, onCerrarSesion: () -> Unit) {
     val productos by vm.productos.collectAsState()
     val cantidadCarrito by vm.cantidadEnCarrito.collectAsState()
     var busqueda by remember { mutableStateOf("") }
@@ -64,7 +65,7 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () 
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().background(FondoMenu).padding(horizontal = 18.dp)
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
@@ -76,6 +77,9 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () 
                 Text("¿Qué se te antoja hoy?", color = Color(0xFF858585), style = MaterialTheme.typography.bodyMedium)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onAjustes) {
+                    Icon(Icons.Default.Settings, contentDescription = "Ajustes", tint = Color(0xFF30343B))
+                }
                 BadgedBox(badge = { if (cantidadCarrito > 0) Badge { Text(cantidadCarrito.toString()) } }) {
                     IconButton(onClick = onAbrirCarrito) {
                         Icon(Icons.Default.ShoppingBag, contentDescription = "Bolsa, $cantidadCarrito productos", tint = Color(0xFF30343B))
@@ -84,6 +88,15 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () 
                 IconButton(onClick = onCerrarSesion) {
                     Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión y cambiar perfil", tint = NaranjaCafe)
                 }
+            }
+        }
+
+        if (!recibirPedidos) {
+            androidx.compose.material3.Card(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                colors = androidx.compose.material3.CardDefaults.cardColors(containerColor = Color(0xFFFFE4E4))
+            ) {
+                Text("Cafetería cerrada · No se pueden confirmar pedidos", modifier = Modifier.padding(14.dp), color = Color(0xFFB3261E), fontWeight = FontWeight.SemiBold)
             }
         }
 
@@ -97,8 +110,8 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () 
             singleLine = true,
             shape = RoundedCornerShape(15.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color.White,
-                focusedContainerColor = Color.White,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedBorderColor = Color(0xFFE6E2DE),
                 focusedBorderColor = NaranjaCafe
             )
@@ -117,7 +130,7 @@ fun MenuScreen(vm: MenuViewModel, onProducto: (Int) -> Unit, onAbrirCarrito: () 
                     colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
                         selectedContainerColor = NaranjaCafe,
                         selectedLabelColor = Color.White,
-                        containerColor = Color.White
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
                 )
             }

@@ -54,6 +54,7 @@ private val Naranja = Color(0xFFEB5A0A)
 fun ConfirmarPedidoScreen(
     pedidosVm: PedidosClienteViewModel,
     menuVm: MenuViewModel,
+    recibirPedidos: Boolean,
     onVolver: () -> Unit,
     onPedidoConfirmado: (Long) -> Unit
 ) {
@@ -67,7 +68,7 @@ fun ConfirmarPedidoScreen(
     val horas = listOf("Ahora", "10:30", "11:00", "11:30")
     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
 
-    Column(modifier = Modifier.fillMaxSize().background(Fondo).padding(horizontal = 18.dp, vertical = 10.dp)) {
+    Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(horizontal = 18.dp, vertical = 10.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             IconButton(onClick = onVolver) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -94,7 +95,7 @@ fun ConfirmarPedidoScreen(
         ) {
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(Color.White).padding(12.dp),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     carrito.forEach { item -> LineaPedido(item) }
@@ -152,7 +153,7 @@ fun ConfirmarPedidoScreen(
             }
             item {
                 Column(
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(14.dp),
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.surface).padding(14.dp),
                     verticalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
                     FilaPrecio("Subtotal", subtotal)
@@ -166,6 +167,9 @@ fun ConfirmarPedidoScreen(
             if (error != null) item { Text(error!!, color = MaterialTheme.colorScheme.error) }
         }
 
+        if (!recibirPedidos) {
+            Text("Cafetería cerrada: vuelve a intentarlo cuando se habiliten los pedidos.", color = MaterialTheme.colorScheme.error)
+        }
         Spacer(Modifier.height(8.dp))
         Button(
             onClick = {
@@ -175,12 +179,12 @@ fun ConfirmarPedidoScreen(
                 }
             },
             modifier = Modifier.fillMaxWidth().height(50.dp),
-            enabled = !confirmando && carrito.isNotEmpty(),
+            enabled = !confirmando && carrito.isNotEmpty() && recibirPedidos,
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Naranja)
         ) {
             if (confirmando) CircularProgressIndicator(modifier = Modifier.size(22.dp), color = Color.White)
-            else Text("Confirmar pedido", fontWeight = FontWeight.Bold)
+            else Text(if (recibirPedidos) "Confirmar pedido" else "Cafetería cerrada", fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(6.dp))
         OutlinedButton(onClick = onVolver, modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(12.dp)) {
@@ -200,7 +204,7 @@ private fun LineaPedido(item: ItemCarrito) {
         )
         Column(modifier = Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Text(item.producto.nombre, fontWeight = FontWeight.SemiBold, maxLines = 1)
-            Text("x${item.cantidad}", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text("x${item.cantidad}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Text(
             "S/ ${"%.2f".format(Locale.US, item.producto.precio * item.cantidad)}",
@@ -213,7 +217,7 @@ private fun LineaPedido(item: ItemCarrito) {
 @Composable
 private fun FilaPrecio(etiqueta: String, monto: Double) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(etiqueta, color = Color.Gray)
-        Text("S/ ${"%.2f".format(Locale.US, monto)}", color = Color.Gray)
+        Text(etiqueta, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("S/ ${"%.2f".format(Locale.US, monto)}", color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }

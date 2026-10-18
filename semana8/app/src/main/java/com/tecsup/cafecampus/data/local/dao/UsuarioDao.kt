@@ -11,6 +11,9 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuarios WHERE LOWER(correo) = LOWER(:correo) AND clave = :clave LIMIT 1")
     suspend fun login(correo: String, clave: String): Usuario?
 
+    @Query("SELECT * FROM usuarios WHERE UPPER(rol) = UPPER(:rol) ORDER BY id LIMIT 1")
+    suspend fun primeroPorRol(rol: String): Usuario?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(u: Usuario)
 
