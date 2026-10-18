@@ -7,6 +7,13 @@ enum class EstadoPedido {
     ENTREGADO,
     CANCELADO;
 
+    fun siguiente(): EstadoPedido? = when (this) {
+        RECIBIDO -> PREPARANDO
+        PREPARANDO -> LISTO
+        LISTO -> ENTREGADO
+        ENTREGADO, CANCELADO -> null
+    }
+
     companion object {
         fun desde(valor: String?): EstadoPedido = when (valor?.uppercase()) {
             "PENDIENTE", "RECIBIDO" -> RECIBIDO

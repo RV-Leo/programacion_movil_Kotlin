@@ -13,4 +13,5 @@ sealed class Rutas(val ruta: String) {
     }
     object MisPedidos : Rutas("mis-pedidos")
     object Panel : Rutas("panel")
+    object PedidosAdmin : Rutas("pedidos-admin")
 }

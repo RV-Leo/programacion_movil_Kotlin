@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.tecsup.cafecampus.model.Rol
 import com.tecsup.cafecampus.ui.admin.PanelScreen
+import com.tecsup.cafecampus.ui.admin.PedidosAdminScreen
 import com.tecsup.cafecampus.ui.cliente.ConfirmarPedidoScreen
 import com.tecsup.cafecampus.ui.cliente.DetalleProductoScreen
 import com.tecsup.cafecampus.ui.cliente.LoginScreen
@@ -20,6 +21,7 @@ import com.tecsup.cafecampus.viewmodel.CafeViewModelFactory
 import com.tecsup.cafecampus.viewmodel.MenuViewModel
 import com.tecsup.cafecampus.viewmodel.PanelAdminViewModel
 import com.tecsup.cafecampus.viewmodel.PedidosClienteViewModel
+import com.tecsup.cafecampus.viewmodel.PedidosAdminViewModel
 import com.tecsup.cafecampus.viewmodel.SesionViewModel
 
 @Composable
@@ -31,6 +33,7 @@ fun NavCafe(
     val menuViewModel: MenuViewModel = viewModel(factory = factory)
     val pedidosClienteViewModel: PedidosClienteViewModel = viewModel(factory = factory)
     val panelAdminViewModel: PanelAdminViewModel = viewModel(factory = factory)
+    val pedidosAdminViewModel: PedidosAdminViewModel = viewModel(factory = factory)
 
     NavHost(navController = navController, startDestination = Rutas.Splash.ruta) {
         composable(Rutas.Splash.ruta) {
@@ -118,6 +121,8 @@ fun NavCafe(
         composable(Rutas.Panel.ruta) {
             PanelScreen(
                 vm = panelAdminViewModel,
+                pedidosVm = pedidosAdminViewModel,
+                onVerPedidos = { navController.navigate(Rutas.PedidosAdmin.ruta) },
                 onCerrarSesion = {
                     sesionViewModel.cerrarSesion()
                     pedidosClienteViewModel.establecerCliente(0)
@@ -126,6 +131,13 @@ fun NavCafe(
                         launchSingleTop = true
                     }
                 }
+            )
+        }
+
+        composable(Rutas.PedidosAdmin.ruta) {
+            PedidosAdminScreen(
+                vm = pedidosAdminViewModel,
+                onVolver = { navController.popBackStack() }
             )
         }
     }
