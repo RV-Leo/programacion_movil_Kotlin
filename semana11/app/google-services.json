@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "879664894264",
+    "project_id": "authfirebaseapp-cd553",
+    "storage_bucket": "authfirebaseapp-cd553.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:879664894264:android:ecbd2a291ddfb6aa0fb1cd",
+        "android_client_info": {
+          "package_name": "com.tecsup.authfirebaseapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCl9cw8eMA6B-FEkkiYiEiCjlo4jssswjg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
