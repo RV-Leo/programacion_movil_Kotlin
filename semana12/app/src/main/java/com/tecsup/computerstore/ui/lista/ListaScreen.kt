@@ -58,7 +58,7 @@ fun ListaScreen(
                 is UiState.Cargando -> Cargando()
                 is UiState.Error -> ErrorView(
                     mensaje = estado.mensaje,
-                    onReintentar = { viewModel.cargarDatosPrueba() }
+                    onReintentar = { viewModel.cargarProductos() }
                 )
                 is UiState.Exito -> ListaContenido(
                     items = estado.datos,

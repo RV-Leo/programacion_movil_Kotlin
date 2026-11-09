@@ -18,6 +18,19 @@ fun ItemDto.toEntity(): ItemEntity {
     )
 }
 
+fun ItemDto.toDomain(): Item {
+    return Item(
+        id = id,
+        nombre = nombre,
+        descripcion = descripcion,
+        precio = precio,
+        categoria = categoria,
+        imagenUrl = imagenUrl,
+        stock = stock,
+        esFavorito = esFavorito
+    )
+}
+
 fun ItemEntity.toDomain(): Item {
     return Item(
         id = id,
