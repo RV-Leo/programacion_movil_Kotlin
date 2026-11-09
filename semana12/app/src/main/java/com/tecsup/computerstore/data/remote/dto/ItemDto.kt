@@ -2,14 +2,14 @@ package com.tecsup.computerstore.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-// DTO que responde la API REST
+// DTO de producto mapeado desde la API dummyjson.com
 data class ItemDto(
     @SerializedName("id") val id: Int,
-    @SerializedName("nombre") val nombre: String,
-    @SerializedName("descripcion") val descripcion: String,
-    @SerializedName("precio") val precio: Double,
-    @SerializedName("categoria") val categoria: String,
-    @SerializedName("imagenUrl") val imagenUrl: String,
+    @SerializedName("title") val nombre: String,
+    @SerializedName("description") val descripcion: String,
+    @SerializedName("price") val precio: Double,
+    @SerializedName("category") val categoria: String,
+    @SerializedName("thumbnail") val imagenUrl: String,
     @SerializedName("stock") val stock: Int,
     @SerializedName("esFavorito") val esFavorito: Boolean = false
 )
