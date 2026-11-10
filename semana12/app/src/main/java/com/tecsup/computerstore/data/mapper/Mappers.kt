@@ -5,7 +5,7 @@ import com.tecsup.computerstore.data.remote.dto.ItemDto
 import com.tecsup.computerstore.domain.model.Item
 
 // Conversiones entre ItemDto, ItemEntity e Item
-fun ItemDto.toEntity(): ItemEntity {
+fun ItemDto.toEntity(esFavorito: Boolean = this.esFavorito): ItemEntity {
     return ItemEntity(
         id = id,
         nombre = nombre,

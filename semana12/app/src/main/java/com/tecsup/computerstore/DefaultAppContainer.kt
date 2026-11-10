@@ -1,35 +1,30 @@
 package com.tecsup.computerstore
 
+import android.content.Context
+import com.tecsup.computerstore.data.local.AppDatabase
 import com.tecsup.computerstore.data.auth.AuthRepository
+import com.tecsup.computerstore.data.auth.FirebaseAuthRepository
 import com.tecsup.computerstore.data.remote.RetrofitClient
 import com.tecsup.computerstore.data.repository.ItemRepository
 import com.tecsup.computerstore.data.repository.ItemRepositoryImpl
-import com.tecsup.computerstore.domain.model.Sesion
+import com.tecsup.computerstore.notification.NotificadorAndroid
 import com.tecsup.computerstore.notification.Notificador
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 
 // Implementacion por defecto del contenedor de dependencias
-class DefaultAppContainer : AppContainer {
+class DefaultAppContainer(context: Context) : AppContainer {
 
     private val apiService = RetrofitClient.crearApiService()
+    private val database = AppDatabase.getInstance(context)
 
     override val itemRepository: ItemRepository by lazy {
-        ItemRepositoryImpl(apiService)
+        ItemRepositoryImpl(apiService, database.itemDao())
     }
 
     override val authRepository: AuthRepository by lazy {
-        object : AuthRepository {
-            override fun getSesionActual(): Flow<Sesion?> = MutableStateFlow(null)
-            override suspend fun login(email: String, clave: String): Result<Sesion> =
-                Result.failure(Exception("Sin implementar"))
-            override suspend fun logout() {}
-        }
+        FirebaseAuthRepository(context.applicationContext)
     }
 
     override val notificador: Notificador by lazy {
-        object : Notificador {
-            override fun mostrarNotificacion(titulo: String, mensaje: String) {}
-        }
+        NotificadorAndroid(context.applicationContext)
     }
 }
