@@ -11,17 +11,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -38,14 +42,29 @@ import com.tecsup.computerstore.ui.components.ErrorView
 @Composable
 fun ListaScreen(
     viewModel: ListaViewModel,
-    onItemClick: (Int) -> Unit = {}
+    onItemClick: (Int) -> Unit = {},
+    onFavoritosClick: () -> Unit = {},
+    usuario: String = "Leo",
+    esAdmin: Boolean = false,
+    onAdminClick: () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val aviso by viewModel.aviso.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Tienda PC - Catalogo") }
+                title = { Text("Hola, $usuario") },
+                actions = {
+                    IconButton(onClick = onFavoritosClick) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Ver favoritos")
+                    }
+                    if (esAdmin) IconButton(onClick = onAdminClick) {
+                        Icon(Icons.Default.AdminPanelSettings, contentDescription = "Panel de administración")
+                    }
+                    IconButton(onClick = onLogout) { Icon(Icons.Default.Logout, contentDescription = "Cerrar sesión") }
+                }
             )
         }
     ) { innerPadding ->
@@ -54,6 +73,14 @@ fun ListaScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            if (aviso != null) {
+                Surface(color = MaterialTheme.colorScheme.secondaryContainer, modifier = Modifier.fillMaxWidth()) {
+                    Row(Modifier.padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Text(aviso.orEmpty(), Modifier.weight(1f), style = MaterialTheme.typography.bodySmall)
+                        Button(onClick = { viewModel.cargarProductos() }) { Text("Reintentar") }
+                    }
+                }
+            }
             when (val estado = uiState) {
                 is UiState.Cargando -> Cargando()
                 is UiState.Error -> ErrorView(
