@@ -6,18 +6,19 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,9 +61,11 @@ fun RegistroScreen(
     LaunchedEffect(sesion?.uid) { sesion?.let(onRegistroSuccess) }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = { Text("Crear cuenta") },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
                 navigationIcon = {
                     IconButton(onClick = onVolverClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -76,19 +80,21 @@ fun RegistroScreen(
                 .padding(padding)
                 .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Únete a Computer Store",
+                text = "Únete a ComputerStore",
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
-                text = "Completa tus datos para registrarte",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
+                text = "Completa tus datos para crear una nueva cuenta",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 6.dp, bottom = 28.dp)
             )
 
             OutlinedTextField(
@@ -98,6 +104,7 @@ fun RegistroScreen(
                 label = { Text("Nombre completo") },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                 singleLine = true,
+                shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
             )
             Spacer(Modifier.height(14.dp))
@@ -109,6 +116,7 @@ fun RegistroScreen(
                 label = { Text("Correo electrónico") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 singleLine = true,
+                shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             Spacer(Modifier.height(14.dp))
@@ -120,6 +128,7 @@ fun RegistroScreen(
                 label = { Text("Contraseña") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 singleLine = true,
+                shape = RoundedCornerShape(14.dp),
                 visualTransformation = if (mostrarClave) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
@@ -143,11 +152,12 @@ fun RegistroScreen(
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
             Button(
                 onClick = viewModel::registrar,
                 enabled = !state.cargando,
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
@@ -155,17 +165,25 @@ fun RegistroScreen(
                 if (state.cargando) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text("Registrar cuenta")
+                    Text(
+                        text = "Registrar cuenta",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
 
             TextButton(
                 onClick = onVolverClick,
                 enabled = !state.cargando
             ) {
-                Text("¿Ya tienes una cuenta? Inicia sesión")
+                Text(
+                    text = "¿Ya tienes una cuenta? Inicia sesión",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }

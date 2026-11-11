@@ -7,15 +7,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -38,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -71,51 +71,107 @@ fun LoginScreen(
                 .padding(padding)
                 .imePadding()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp
+                shape = RoundedCornerShape(20.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
             ) {
-                Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Surface(shape = RoundedCornerShape(20.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                        Icon(Icons.Default.Computer, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(16.dp).height(32.dp))
-                    }
-                    Text("ComputerStore", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 12.dp))
-                    Text("Tu tienda de tecnología", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp, bottom = 20.dp))
+                Icon(
+                    imageVector = Icons.Default.Computer,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .height(36.dp)
+                )
+            }
 
-                    Text("Elige tu tipo de acceso", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, modifier = Modifier.align(Alignment.Start))
-                    Surface(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 14.dp), shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Cliente", fontWeight = if (!modoAdmin) FontWeight.Bold else FontWeight.Normal)
-                            Switch(checked = modoAdmin, onCheckedChange = ::seleccionarModo)
-                            Text("Administrador", fontWeight = if (modoAdmin) FontWeight.Bold else FontWeight.Normal)
-                        }
-                    }
-                    Text(if (modoAdmin) "Acceso al panel de gestión" else "Ingresa con tu cuenta de cliente", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp))
+            Text(
+                text = "ComputerStore",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            Text(
+                text = "Tu tienda de tecnología y componentes",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 4.dp, bottom = 28.dp)
+            )
 
-                    OutlinedTextField(
+            Text(
+                text = "Tipo de acceso",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.align(Alignment.Start)
+            )
+
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 20.dp),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Cliente",
+                        fontWeight = if (!modoAdmin) FontWeight.Bold else FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Switch(
+                        checked = modoAdmin,
+                        onCheckedChange = ::seleccionarModo
+                    )
+                    Text(
+                        text = "Administrador",
+                        fontWeight = if (modoAdmin) FontWeight.Bold else FontWeight.Normal,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Text(
+                text = if (modoAdmin) "Acceso restringido al panel de administración" else "Ingresa con tu correo y contraseña",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
+            )
+
+            OutlinedTextField(
                 value = state.correo,
                 onValueChange = viewModel::cambiarCorreo,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Correo electrónico") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                 singleLine = true,
+                shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
-                    Spacer(Modifier.height(14.dp))
 
-                    OutlinedTextField(
+            Spacer(Modifier.height(14.dp))
+
+            OutlinedTextField(
                 value = state.clave,
                 onValueChange = viewModel::cambiarClave,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("Contraseña") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 singleLine = true,
+                shape = RoundedCornerShape(14.dp),
                 visualTransformation = if (mostrarClave) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
@@ -128,10 +184,18 @@ fun LoginScreen(
                 }
             )
 
-                    if (modoAdmin) {
-                        Text("Acceso inicial: admin@admin.com · admin123456", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.fillMaxWidth().padding(top = 10.dp))
-                    }
-                    state.error?.let {
+            if (modoAdmin) {
+                Text(
+                    text = "Credenciales iniciales: admin@admin.com · admin123456",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp)
+                )
+            }
+
+            state.error?.let {
                 Text(
                     text = it,
                     color = MaterialTheme.colorScheme.error,
@@ -142,11 +206,12 @@ fun LoginScreen(
                 )
             }
 
-                    Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(24.dp))
 
-                    Button(
+            Button(
                 onClick = { viewModel.iniciarSesion(accesoAdmin = modoAdmin) },
                 enabled = !state.cargando,
+                shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp)
@@ -154,17 +219,26 @@ fun LoginScreen(
                 if (state.cargando) {
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                 } else {
-                    Text("Iniciar sesión")
+                    Text(
+                        text = if (modoAdmin) "Iniciar como Admin" else "Iniciar sesión",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
-                    Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(14.dp))
 
-                    if (!modoAdmin) {
-                        TextButton(onClick = onRegistrarseClick, enabled = !state.cargando) {
-                            Text("¿No tienes cuenta? Regístrate aquí")
-                        }
-                    }
+            if (!modoAdmin) {
+                TextButton(
+                    onClick = onRegistrarseClick,
+                    enabled = !state.cargando
+                ) {
+                    Text(
+                        text = "¿No tienes una cuenta? Regístrate aquí",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
