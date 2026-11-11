@@ -7,7 +7,7 @@ import retrofit2.http.Path
 
 // Interfaz Retrofit para consumir la API de dummyjson.com
 interface ApiService {
-    @GET("products/category/laptops")
+    @GET("products?limit=0")
     suspend fun getItems(): ProductResponseDto
 
     @GET("products/{id}")

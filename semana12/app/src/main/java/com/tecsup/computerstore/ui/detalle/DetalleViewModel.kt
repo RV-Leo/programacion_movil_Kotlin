@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.tecsup.computerstore.AppContainer
 import com.tecsup.computerstore.data.repository.ItemRepository
 import com.tecsup.computerstore.domain.model.Item
-import com.tecsup.computerstore.notification.Notificador
 import com.tecsup.computerstore.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +15,7 @@ import kotlinx.coroutines.launch
 // ViewModel para administrar el detalle del producto mediante el segundo endpoint
 class DetalleViewModel(
     private val itemId: Int,
-    private val repository: ItemRepository,
-    private val notificador: Notificador
+    private val repository: ItemRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<UiState<Item>>(UiState.Cargando)
@@ -43,22 +41,22 @@ class DetalleViewModel(
         }
     }
 
-    fun comprarProducto() {
-        val estado = _uiState.value
-        if (estado is UiState.Exito) {
-            notificador.mostrarNotificacion(
-                "¡Compra Realizada!",
-                "Has comprado: ${estado.datos.nombre} por S/ ${estado.datos.precio}"
-            )
+    fun cambiarFavorito() {
+        val estado = _uiState.value as? UiState.Exito<Item> ?: return
+        val nuevoEstado = !estado.datos.esFavorito
+        _uiState.value = UiState.Exito(estado.datos.copy(esFavorito = nuevoEstado))
+        viewModelScope.launch {
+            repository.cambiarFavorito(itemId, nuevoEstado)
         }
     }
+
 
     // Factory para instanciar DetalleViewModel
     companion object {
         fun Factory(itemId: Int, appContainer: AppContainer): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return DetalleViewModel(itemId, appContainer.itemRepository, appContainer.notificador) as T
+                return DetalleViewModel(itemId, appContainer.itemRepository) as T
             }
         }
     }

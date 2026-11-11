@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 // Operaciones DAO en Room (fuente unica de verdad)
 @Dao
 interface ItemDao {
-    @Query("SELECT * FROM items")
+    @Query("SELECT * FROM items ORDER BY categoria COLLATE NOCASE, nombre COLLATE NOCASE")
     fun getItems(): Flow<List<ItemEntity>>
 
     @Query("SELECT * FROM items WHERE id = :id")

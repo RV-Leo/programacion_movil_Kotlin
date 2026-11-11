@@ -7,20 +7,29 @@ Aplicación móvil Android desarrollada en **Kotlin** y **Jetpack Compose** para
 - **Autenticación con Firebase Auth & Firestore**:
   - Inicio de sesión por correo y contraseña.
   - Roles de usuario (`USUARIO` y `ADMIN`) consultados en tiempo real desde Firestore.
-- **Catálogo de Productos**:
-  - Consumo de API REST remota con **Retrofit**.
-  - Persistencia local con **Room** como *Single Source of Truth* (Fuente Única de Verdad).
+- **Catálogo de productos**:
+  - Descarga de laptops, tablets y accesorios compatibles desde DummyJSON con **Retrofit**.
+  - Catálogo de muestra local para placas madre, procesadores, memoria RAM, almacenamiento, tarjetas gráficas, teclados, mouse, hubs USB, monitores portátiles, micrófonos, webcams y audífonos.
+  - **Room** conserva el catálogo y los favoritos para consultarlos sin conexión. Los precios y stocks del catálogo de muestra son demostrativos.
 - **Modo Sin Conexión**:
   - Visualización del catálogo guardado localmente cuando no hay acceso a internet.
   - Aviso contextual en la interfaz de usuario.
 - **Favoritos**:
-  - Marcar/desmarcar productos favoritos y pantalla dedicada para su consulta.
+  - Marcar/desmarcar productos desde el catálogo y el detalle, con pantalla dedicada.
+- **Carrito y compra**:
+  - Selector de cantidades, validación de stock y cálculo del subtotal y total.
+  - Flujo de revisión de pedido de demostración; todavía no procesa pagos reales ni envía pedidos a una tienda.
 - **Panel de Administración**:
   - Acceso restringido únicamente para usuarios con rol `ADMIN`.
   - Estadísticas de productos y favoritos guardados.
   - Botón de sincronización con la API y limpieza de caché local.
 - **Notificaciones Locales**:
-  - Notificación de sistema al sincronizar catálogo y al realizar compras.
+  - Notificación de sistema al sincronizar el catálogo.
+
+
+## Imágenes locales de productos
+
+Guarda cada imagen en `app/src/main/res/drawable/` con el formato `product_ID.webp`, donde `ID` es el identificador del producto. Por ejemplo, el producto local `10_001` usa `product_10001.webp`. También se aceptan PNG y JPG. La pantalla busca primero el drawable local; si no existe, usa la imagen remota o el marcador de categoría.
 
 ## 🛠️ Arquitectura y Tecnologías
 
@@ -28,7 +37,7 @@ Aplicación móvil Android desarrollada en **Kotlin** y **Jetpack Compose** para
 - **UI**: Jetpack Compose, Material Design 3, Navigation Compose.
 - **Base de datos local**: Room Database (Entity, DAO, Database).
 - **Red & API**: Retrofit + Gson Converter.
-- **Backend / Auth**: Firebase Authentication & Cloud Firestore.
+- **Autenticación y perfiles**: Firebase Authentication y Cloud Firestore para cuentas, perfiles y roles. Los productos se guardan localmente con Room; Firebase no es el almacén del catálogo.
 - **Asincronía**: Kotlin Coroutines & StateFlow.
 
 ## 📋 Requisitos Previos e Instalación
