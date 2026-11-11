@@ -27,6 +27,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -35,12 +38,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +53,7 @@ import com.tecsup.computerstore.domain.model.Item
 import com.tecsup.computerstore.ui.UiState
 import com.tecsup.computerstore.ui.components.ErrorView
 import com.tecsup.computerstore.ui.theme.StoreMuted
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,12 +66,54 @@ fun DetalleScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val item = (uiState as? UiState.Exito<Item>)?.datos
     var cantidad by rememberSaveable(item?.id) { mutableIntStateOf(1) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     LaunchedEffect(item?.id, item?.stock) {
         cantidad = if ((item?.stock ?: 0) > 0) 1 else 0
     }
 
+    fun handleFavoriteToggle() {
+        val currentItem = item ?: return
+        val eraFavorito = currentItem.esFavorito
+        viewModel.cambiarFavorito()
+        scope.launch {
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val mensaje = if (!eraFavorito) "agregado" else "eliminado"
+            snackbarHostState.showSnackbar(mensaje)
+        }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                val esAgregado = data.visuals.message == "agregado"
+                Snackbar(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (esAgregado) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            tint = if (esAgregado) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (esAgregado) "Producto agregado a favoritos" else "Producto eliminado de favoritos",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        },
         topBar = {
             TopAppBar(
                 title = { Text("Detalle del producto", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold) },
@@ -107,7 +154,7 @@ fun DetalleScreen(
                 cantidad = cantidad,
                 onCantidadChange = { cantidad = it },
                 esFavorito = state.datos.esFavorito,
-                onFavoritoClick = viewModel::cambiarFavorito,
+                onFavoritoClick = ::handleFavoriteToggle,
                 modifier = Modifier.fillMaxSize().padding(padding)
             )
         }

@@ -12,9 +12,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -26,11 +26,11 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Computer
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,12 +39,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,6 +66,7 @@ import com.tecsup.computerstore.ui.components.StoreProductCard
 import com.tecsup.computerstore.ui.theme.StoreBlue
 import com.tecsup.computerstore.ui.theme.StoreMint
 import com.tecsup.computerstore.ui.theme.StoreMuted
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,8 +81,54 @@ fun ListaScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val aviso by viewModel.aviso.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+    fun handleFavoriteToggle(id: Int) {
+        val state = uiState
+        if (state is UiState.Exito) {
+            val item = state.datos.find { it.id == id }
+            val eraFavorito = item?.esFavorito ?: false
+            viewModel.cambiarFavorito(id)
+            scope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                val mensaje = if (!eraFavorito) "agregado" else "eliminado"
+                snackbarHostState.showSnackbar(mensaje)
+            }
+        }
+    }
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                val esAgregado = data.visuals.message == "agregado"
+                Snackbar(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.padding(12.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = if (esAgregado) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = null,
+                            tint = if (esAgregado) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (esAgregado) "Producto agregado a favoritos" else "Producto eliminado de favoritos",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+        }
+    ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             StoreHeader(
                 usuario = usuario,
@@ -99,7 +150,7 @@ fun ListaScreen(
                     products = state.datos,
                     aviso = aviso,
                     onRetry = viewModel::cargarProductos,
-                    onFavoriteClick = viewModel::cambiarFavorito,
+                    onFavoriteClick = ::handleFavoriteToggle,
                     onItemClick = onItemClick
                 )
             }

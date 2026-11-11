@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeout
+import kotlin.time.Duration.Companion.milliseconds
 
 class FirebaseAuthRepository(context: Context) : AuthRepository {
     private companion object {
@@ -57,19 +58,19 @@ class FirebaseAuthRepository(context: Context) : AuthRepository {
             val normalizedEmail = email.trim().lowercase()
             val bootstrapAdmin = normalizedEmail == ADMIN_EMAIL && clave == ADMIN_PASSWORD
             val user = runCatching {
-                withTimeout(FIREBASE_TIMEOUT_MS) {
+                withTimeout(FIREBASE_TIMEOUT_MS.milliseconds) {
                     currentAuth.signInWithEmailAndPassword(normalizedEmail, clave).await().user
                 }
             }.getOrElse { signInError ->
                 if (!bootstrapAdmin) throw signInError
-                withTimeout(FIREBASE_TIMEOUT_MS) {
+                withTimeout(FIREBASE_TIMEOUT_MS.milliseconds) {
                     currentAuth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD).await().user
                 }
             }
                 ?: throw IllegalStateException("Firebase no devolvió el usuario autenticado.")
             if (bootstrapAdmin) {
                 val database = firestore ?: throw IllegalStateException("Firestore no está configurado.")
-                withTimeout(FIREBASE_TIMEOUT_MS) {
+                withTimeout(FIREBASE_TIMEOUT_MS.milliseconds) {
                     database.collection("usuarios").document(user.uid)
                         .set(mapOf("nombre" to "admin", "rol" to "admin")).await()
                 }
@@ -93,7 +94,7 @@ class FirebaseAuthRepository(context: Context) : AuthRepository {
             }
             val user = currentAuth.currentUser
                 ?.takeIf { it.email.equals(normalizedEmail, ignoreCase = true) }
-                ?: withTimeout(FIREBASE_TIMEOUT_MS) {
+                ?: withTimeout(FIREBASE_TIMEOUT_MS.milliseconds) {
                     currentAuth.createUserWithEmailAndPassword(normalizedEmail, clave).await().user
                 }
                 ?: throw IllegalStateException("Firebase no creó el usuario.")
@@ -101,7 +102,7 @@ class FirebaseAuthRepository(context: Context) : AuthRepository {
                 "nombre" to nombre.ifBlank { normalizedEmail.substringBefore('@') },
                 "rol" to "usuario"
             )
-            withTimeout(FIREBASE_TIMEOUT_MS) {
+            withTimeout(FIREBASE_TIMEOUT_MS.milliseconds) {
                 database.collection("usuarios").document(user.uid).set(datosUsuario).await()
             }
             val sesion = Sesion(uid = user.uid, email = normalizedEmail, usuario = nombre, rol = Rol.USUARIO)

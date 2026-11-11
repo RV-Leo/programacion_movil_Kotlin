@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.tecsup.computerstore.ui.navigation.ComputerStoreApp
 import com.tecsup.computerstore.ui.theme.ComputerStoreTheme
+import androidx.core.content.edit
 
 class MainActivity : ComponentActivity() {
     private val appContainer by lazy { DefaultAppContainer(applicationContext) }
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
                         darkMode = darkMode,
                         onDarkModeChange = { enabled ->
                             darkMode = enabled
-                            preferences.edit().putBoolean("dark_mode", enabled).apply()
+                            preferences.edit { putBoolean("dark_mode", enabled) }
                         }
                     )
                 }
