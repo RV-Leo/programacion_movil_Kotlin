@@ -14,13 +14,16 @@ Aplicación móvil Android desarrollada en **Kotlin** y **Jetpack Compose** para
   - Visualización del catálogo guardado localmente cuando no hay acceso a internet.
   - Aviso contextual en la interfaz de usuario.
 - **Favoritos**:
-  - Marcar/desmarcar productos favoritos y pantalla dedicada para su consulta.
+  - Marcar/desmarcar productos desde el catálogo y el detalle, con pantalla dedicada.
+- **Carrito y compra**:
+  - Selector de cantidades, validación de stock y cálculo del subtotal y total.
+  - Flujo de revisión de pedido de demostración; todavía no procesa pagos reales ni envía pedidos a una tienda.
 - **Panel de Administración**:
   - Acceso restringido únicamente para usuarios con rol `ADMIN`.
   - Estadísticas de productos y favoritos guardados.
   - Botón de sincronización con la API y limpieza de caché local.
 - **Notificaciones Locales**:
-  - Notificación de sistema al sincronizar catálogo y al realizar compras.
+  - Notificación de sistema al sincronizar el catálogo.
 
 ## 🛠️ Arquitectura y Tecnologías
 
