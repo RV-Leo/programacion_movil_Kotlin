@@ -1,11 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
-}
-
-// Firebase se activa al colocar google-services.json dentro de app/.
-if (file("google-services.json").exists()) {
-    apply(plugin = "com.google.gms.google-services")
+    id("com.google.gms.google-services")
 }
 
 android {
