@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.computerstore.domain.model.Rol
 import com.tecsup.computerstore.domain.model.Sesion
+import com.tecsup.computerstore.data.repository.OrderRepository
 import com.tecsup.computerstore.ui.admin.AdminScreen
 import com.tecsup.computerstore.ui.admin.AdminViewModel
 import com.tecsup.computerstore.ui.admin.AdminViewModelFactory
@@ -62,6 +61,7 @@ import com.tecsup.computerstore.ui.lista.ListaViewModel
 import com.tecsup.computerstore.ui.login.LoginScreen
 import com.tecsup.computerstore.ui.login.LoginViewModel
 import com.tecsup.computerstore.ui.perfil.PerfilScreen
+import com.tecsup.computerstore.ui.procesos.ProcesosScreen
 import com.tecsup.computerstore.ui.registro.RegistroScreen
 import com.tecsup.computerstore.ui.registro.RegistroViewModel
 import com.tecsup.computerstore.ui.theme.ComputerStoreTheme
@@ -72,7 +72,7 @@ private data class BottomDestination(val route: String, val label: String, val i
 
 private val bottomDestinations = listOf(
     BottomDestination("catalogo", "Inicio", Icons.Default.Home),
-    BottomDestination("carrito", "Carrito", Icons.Default.ShoppingCart),
+    BottomDestination("procesos", "Procesos", Icons.Default.ReceiptLong),
     BottomDestination("perfil", "Perfil", Icons.Default.Person)
 )
 
@@ -82,10 +82,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val preferences = getSharedPreferences("computer_store_preferences", MODE_PRIVATE)
         setContent {
-            ComputerStoreTheme(dynamicColor = false) {
+            var darkMode by remember { mutableStateOf(preferences.getBoolean("dark_mode", false)) }
+            ComputerStoreTheme(darkTheme = darkMode, dynamicColor = false) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    ComputerStoreApp(appContainer)
+                    ComputerStoreApp(appContainer, darkMode, { enabled ->
+                        darkMode = enabled
+                        preferences.edit().putBoolean("dark_mode", enabled).apply()
+                    })
                 }
             }
         }
@@ -93,7 +98,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ComputerStoreApp(appContainer: AppContainer) {
+private fun ComputerStoreApp(appContainer: AppContainer, darkMode: Boolean, onDarkModeChange: (Boolean) -> Unit) {
     val navController = rememberNavController()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -101,6 +106,7 @@ private fun ComputerStoreApp(appContainer: AppContainer) {
     var session by remember { mutableStateOf<Sesion?>(null) }
     var sessionChecked by remember { mutableStateOf(false) }
     var cart by remember { mutableStateOf<Map<Int, LineaCarrito>>(emptyMap()) }
+    val orderRepository = remember { OrderRepository(context) }
 
     LaunchedEffect(appContainer) {
         session = runCatching { appContainer.authRepository.getSesionActual().first() }.getOrNull()
@@ -120,7 +126,7 @@ private fun ComputerStoreApp(appContainer: AppContainer) {
     val navEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navEntry?.destination?.route
     val startDestination = if (session == null) "login" else "catalogo"
-    val showBottomBar = session != null && currentRoute in setOf("catalogo", "carrito", "perfil")
+    val showBottomBar = session != null && currentRoute in setOf("catalogo", "procesos", "perfil")
 
     fun navigateToTab(route: String) {
         navController.navigate(route) {
@@ -150,13 +156,7 @@ private fun ComputerStoreApp(appContainer: AppContainer) {
                             selected = currentRoute == destination.route,
                             onClick = { navigateToTab(destination.route) },
                             icon = {
-                                if (destination.route == "carrito" && cart.isNotEmpty()) {
-                                    BadgedBox(badge = { Badge { Text(cart.values.sumOf { it.cantidad }.toString()) } }) {
-                                        Icon(destination.icon, contentDescription = destination.label)
-                                    }
-                                } else {
-                                    Icon(destination.icon, contentDescription = destination.label)
-                                }
+                                Icon(destination.icon, contentDescription = destination.label)
                             },
                             label = { Text(destination.label) },
                             colors = NavigationBarItemDefaults.colors(
@@ -205,8 +205,12 @@ private fun ComputerStoreApp(appContainer: AppContainer) {
                     esAdmin = session?.rol == Rol.ADMIN,
                     onItemClick = { navController.navigate("detalle/$it") },
                     onFavoritosClick = { navController.navigate("favoritos") },
-                    onAdminClick = { if (session?.rol == Rol.ADMIN) navController.navigate("admin") }
+                    onAdminClick = { if (session?.rol == Rol.ADMIN) navController.navigate("admin") },
+                    onCartClick = { navController.navigate("carrito") }
                 )
+            }
+            composable("procesos") {
+                session?.let { ProcesosScreen(orderRepository, it.uid, it.rol == Rol.ADMIN) }
             }
             composable("carrito") {
                 CarritoScreen(
@@ -227,10 +231,18 @@ private fun ComputerStoreApp(appContainer: AppContainer) {
                 CheckoutScreen(
                     lineas = cart.values.toList(),
                     correo = session?.email.orEmpty(),
+                    onConfirmOrder = { address ->
+                        val current = session ?: error("Inicia sesión para crear un pedido.")
+                        orderRepository.create(
+                            current.uid, current.usuario, current.email, address,
+                            cart.values.map { it.item.nombre to it.cantidad },
+                            cart.values.sumOf { it.subtotal }
+                        )
+                    },
                     onBack = { navController.popBackStack() },
                     onOrderComplete = {
                         cart = emptyMap()
-                        navigateToTab("catalogo")
+                        navigateToTab("procesos")
                     }
                 )
             }
@@ -240,6 +252,8 @@ private fun ComputerStoreApp(appContainer: AppContainer) {
                     correo = session?.email.orEmpty(),
                     uid = session?.uid.orEmpty(),
                     esAdmin = session?.rol == Rol.ADMIN,
+                    modoOscuro = darkMode,
+                    onModoOscuroChange = onDarkModeChange,
                     onFavoritesClick = { navController.navigate("favoritos") },
                     onAdminClick = { if (session?.rol == Rol.ADMIN) navController.navigate("admin") },
                     onLogout = cerrarSesion

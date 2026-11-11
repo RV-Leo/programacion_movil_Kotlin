@@ -16,13 +16,17 @@ Aplicación móvil Android desarrollada en **Kotlin** y **Jetpack Compose** para
   - Aviso contextual en la interfaz de usuario.
 - **Favoritos**:
   - Marcar/desmarcar productos desde el catálogo y el detalle, con pantalla dedicada.
-- **Carrito y compra**:
+- **Carrito y pedidos**:
   - Selector de cantidades, validación de stock y cálculo del subtotal y total.
-  - Flujo de revisión de pedido de demostración; todavía no procesa pagos reales ni envía pedidos a una tienda.
+  - Registro de pedidos de demostración en Firestore y consulta del historial por cliente.
+  - No procesa pagos reales; el total del panel es una suma demostrativa.
 - **Panel de Administración**:
   - Acceso restringido únicamente para usuarios con rol `ADMIN`.
   - Estadísticas de productos y favoritos guardados.
   - Botón de sincronización con la API y limpieza de caché local.
+  - La opción inferior **Procesos** muestra pedidos, total demostrativo y permite actualizar su estado.
+- **Apariencia**: selector persistente de modo oscuro en el perfil.
+- **Navegación inferior**: Inicio, Procesos y Perfil. El carrito se abre desde el encabezado de Inicio.
 - **Notificaciones Locales**:
   - Notificación de sistema al sincronizar el catálogo.
 
@@ -39,6 +43,18 @@ Guarda cada imagen en `app/src/main/res/drawable/` con el formato `product_ID.we
 - **Red & API**: Retrofit + Gson Converter.
 - **Autenticación y perfiles**: Firebase Authentication y Cloud Firestore para cuentas, perfiles y roles. Los productos se guardan localmente con Room; Firebase no es el almacén del catálogo.
 - **Asincronía**: Kotlin Coroutines & StateFlow.
+
+## Configurar una cuenta de administrador
+
+La app no contiene usuarios ni contraseñas de administrador predefinidos. Para crear la primera cuenta:
+
+1. En Firebase Console, abre **Authentication → Users → Add user** y registra el correo y la contraseña del administrador.
+2. Copia el UID de esa cuenta.
+3. En **Firestore Database**, crea la colección `usuarios` y un documento cuyo ID sea ese UID. Guarda los campos `nombre` (texto) y `rol` (texto con valor exacto `admin`).
+4. Publica las reglas de [`firestore.rules`](firestore.rules) en la pestaña **Rules** de Firestore.
+5. Inicia sesión con esa cuenta en la app. El panel de gestión está en Perfil y el control de pedidos está en la pestaña Procesos.
+
+Las nuevas cuentas creadas desde la app siempre reciben el rol `usuario`; no existe una opción para que un cliente se eleve a administrador. Revisa las reglas de Firestore antes de publicar la app. Los pedidos y sus importes son datos de demostración y no sustituyen un backend de pagos.
 
 ## 📋 Requisitos Previos e Instalación
 

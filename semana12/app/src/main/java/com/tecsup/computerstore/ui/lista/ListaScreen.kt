@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -71,6 +72,7 @@ fun ListaScreen(
     usuario: String = "Leo",
     esAdmin: Boolean = false,
     onAdminClick: () -> Unit = {},
+    onCartClick: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val aviso by viewModel.aviso.collectAsStateWithLifecycle()
@@ -82,6 +84,7 @@ fun ListaScreen(
                 esAdmin = esAdmin,
                 onFavoritosClick = onFavoritosClick,
                 onAdminClick = onAdminClick,
+                onCartClick = onCartClick,
             )
             when (val state = uiState) {
                 UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -110,6 +113,7 @@ private fun StoreHeader(
     esAdmin: Boolean,
     onFavoritosClick: () -> Unit,
     onAdminClick: () -> Unit,
+    onCartClick: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth().padding(start = 20.dp, end = 12.dp, top = 10.dp, bottom = 12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -118,6 +122,7 @@ private fun StoreHeader(
                 Text("Hola, $usuario", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             }
             IconButton(onClick = onFavoritosClick) { Icon(Icons.Default.FavoriteBorder, "Mis favoritos") }
+            IconButton(onClick = onCartClick) { Icon(Icons.Default.ShoppingCart, "Carrito") }
             if (esAdmin) IconButton(onClick = onAdminClick) { Icon(Icons.Default.AdminPanelSettings, "Administración") }
         }
         Text("Encuentra tu próxima computadora", style = MaterialTheme.typography.bodyMedium, color = StoreMuted)

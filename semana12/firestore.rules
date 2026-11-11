@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isAdmin() {
+      return signedIn() && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
+    }
+
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.rol == 'usuario'
+        && request.resource.data.keys().hasOnly(['nombre', 'rol']);
+      allow update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.rol == resource.data.rol
+        && request.resource.data.keys().hasOnly(['nombre', 'rol']);
+      allow delete: if isAdmin();
+    }
+
+    match /pedidos/{pedidoId} {
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'Pendiente'
+        && request.resource.data.total is number
+        && request.resource.data.total >= 0;
+      allow read: if signedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['Pendiente', 'En preparación', 'Enviado', 'Entregado', 'Cancelado'];
+      allow delete: if isAdmin();
+    }
+  }
+}
