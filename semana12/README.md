@@ -30,6 +30,17 @@ Aplicación móvil Android desarrollada en **Kotlin** y **Jetpack Compose** para
 - **Notificaciones Locales**:
   - Notificación de sistema al sincronizar el catálogo.
 
+<img width="407" height="897" alt="image" src="https://github.com/user-attachments/assets/502ebb4d-a329-4468-b31e-5103828c7d6b" />
+
+<img width="386" height="870" alt="image" src="https://github.com/user-attachments/assets/460455ec-9a3f-4079-aca7-6aab89f68f73" />
+
+<img width="432" height="781" alt="image" src="https://github.com/user-attachments/assets/0e521b8f-5cba-425d-a1ba-393338caf96a" />
+
+<img width="408" height="889" alt="image" src="https://github.com/user-attachments/assets/ef097208-b1c0-40dd-90a4-4b96038c0554" />
+
+<img width="399" height="835" alt="image" src="https://github.com/user-attachments/assets/a3244dbe-47dc-48fb-9946-c9778102bfda" />
+
+
 
 ## Imágenes locales de productos
 
