@@ -44,7 +44,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
+import com.tecsup.computerstore.ui.components.ItemImage
 import com.tecsup.computerstore.domain.model.Item
 import com.tecsup.computerstore.ui.UiState
 import com.tecsup.computerstore.ui.components.ErrorView
@@ -118,11 +118,9 @@ fun DetalleScreen(
 private fun ProductDetails(item: Item, cantidad: Int, onCantidadChange: (Int) -> Unit, esFavorito: Boolean, onFavoritoClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
         Box {
-            AsyncImage(
-                model = item.imagenUrl,
-                contentDescription = item.nombre,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(290.dp).clip(RoundedCornerShape(26.dp)).background(MaterialTheme.colorScheme.surfaceVariant)
+            ItemImage(
+                item = item,
+                modifier = Modifier.fillMaxWidth().height(290.dp).clip(RoundedCornerShape(26.dp))
             )
             IconButton(
                 onClick = onFavoritoClick,

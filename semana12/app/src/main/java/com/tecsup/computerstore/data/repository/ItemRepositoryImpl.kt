@@ -20,22 +20,35 @@ class ItemRepositoryImpl(
     override fun getFavoritos(): Flow<List<Item>> = itemDao.getFavoritos().map { it.toDomainList() }
 
     override suspend fun getItemById(id: Int): Item? {
-        return try {
-            val favorito = itemDao.getItemById(id)?.esFavorito ?: false
-            apiService.getItemById(id).toEntity(esFavorito = favorito).also { itemDao.insert(it) }.toDomain()
-        } catch (_: Exception) {
-            itemDao.getItemById(id)?.toDomain()
-        }
+        val cached = itemDao.getItemById(id)
+        if (cached != null) return cached.toDomain()
+        return runCatching {
+            apiService.getItemById(id).toEntity().also { itemDao.insert(it) }.toDomain()
+        }.getOrNull()
     }
 
     override suspend fun sincronizarConRemoto(): Int {
         val idsFavoritos = itemDao.getIdsFavoritos().toSet()
-        val respuesta = apiService.getItems()
-        val entidades = respuesta.products.map { producto ->
-            producto.toEntity(esFavorito = producto.id in idsFavoritos)
+        val productosLocales = DemoCatalogo.productos.map { producto ->
+            producto.copy(esFavorito = producto.id in idsFavoritos).toEntity()
         }
-        itemDao.insertAll(entidades)
-        return entidades.size
+        // Inserta primero el catálogo base para que la app tenga productos incluso sin red.
+        itemDao.insertAll(productosLocales)
+
+        val respuesta = apiService.getItems()
+        val categoriasCompatibles = setOf("laptops", "tablets", "mobile-accessories")
+        val productosRemotos = respuesta.products
+            .filter { it.categoria in categoriasCompatibles }
+            .map { producto ->
+                val categoria = when (producto.categoria) {
+                    "laptops" -> "Laptops"
+                    "tablets" -> "Tablets"
+                    else -> "Accesorios"
+                }
+                producto.toEntity(esFavorito = producto.id in idsFavoritos).copy(categoria = categoria)
+            }
+        itemDao.insertAll(productosRemotos)
+        return productosLocales.size + productosRemotos.size
     }
 
     override suspend fun cambiarFavorito(id: Int, esFavorito: Boolean) {

@@ -134,7 +134,7 @@ private fun StoreCatalog(
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var selectedCategory by rememberSaveable { mutableStateOf("Todo") }
-    val categories = remember(products) { listOf("Todo") + products.map { it.categoria }.distinct() }
+    val categories = remember(products) { listOf("Todo") + products.map { it.categoria }.distinct().sortedBy { it.lowercase() } }
     val filtered = remember(products, query, selectedCategory) {
         products.filter { item ->
             val matchesText = item.nombre.contains(query, ignoreCase = true) ||
@@ -142,6 +142,14 @@ private fun StoreCatalog(
             matchesText && (selectedCategory == "Todo" || item.categoria == selectedCategory)
         }
     }
+
+    val componentCategories = setOf("Placas madre", "Procesadores", "Memoria RAM", "Almacenamiento", "Tarjetas gráficas", "Fuentes de poder", "Refrigeración", "Gabinetes")
+    val accessoryCategories = setOf("Accesorios", "Teclados", "Mouse", "USB hubs", "Monitores portátiles", "Micrófonos", "Webcams", "Audífonos")
+    val catalogGroups = listOf(
+        "Componentes" to filtered.filter { it.categoria in componentCategories },
+        "Accesorios y periféricos" to filtered.filter { it.categoria in accessoryCategories },
+        "Laptops y tablets" to filtered.filter { it.categoria in setOf("Laptops", "Tablets") }
+    )
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -193,13 +201,21 @@ private fun StoreCatalog(
         if (filtered.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
             Text("No encontramos productos con esa búsqueda.", color = StoreMuted, modifier = Modifier.padding(vertical = 24.dp))
         }
-        items(filtered, key = { it.id }) { product ->
-            StoreProductCard(
-                item = product,
-                onClick = { onItemClick(product.id) },
-                onFavoriteClick = { onFavoriteClick(product.id) },
-                modifier = Modifier.fillMaxWidth()
-            )
+        catalogGroups.filter { it.second.isNotEmpty() }.forEach { (title, groupProducts) ->
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("${groupProducts.size} productos", style = MaterialTheme.typography.bodySmall, color = StoreMuted)
+                }
+            }
+            items(groupProducts, key = { it.id }) { product ->
+                StoreProductCard(
+                    item = product,
+                    onClick = { onItemClick(product.id) },
+                    onFavoriteClick = { onFavoriteClick(product.id) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -220,7 +236,7 @@ private fun SearchBox(value: String, onValueChange: (String) -> Unit) {
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface),
             decorationBox = { inner ->
                 Box {
-                    if (value.isEmpty()) Text("Buscar laptops, marcas...", color = StoreMuted, style = MaterialTheme.typography.bodyMedium)
+                    if (value.isEmpty()) Text("Buscar RAM, teclados, monitores...", color = StoreMuted, style = MaterialTheme.typography.bodyMedium)
                     inner()
                 }
             }
@@ -240,8 +256,8 @@ private fun StoreBanner() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
-                Text("POTENCIA PARA\nTUS IDEAS", color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
-                Text("Tecnología que va contigo", color = Color.White.copy(alpha = .86f), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
+                Text("COMPONENTES Y ACCESORIOS\nPARA TU SETUP", color = Color.White, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.ExtraBold)
+                Text("Precios y stock de demostración", color = Color.White.copy(alpha = .86f), style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(top = 6.dp))
             }
             Icon(Icons.Default.Computer, contentDescription = null, tint = Color.White.copy(alpha = .95f), modifier = Modifier.size(64.dp))
         }
