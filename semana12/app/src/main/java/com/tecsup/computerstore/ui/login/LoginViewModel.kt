@@ -26,8 +26,14 @@ class LoginViewModel(private val appContainer: AppContainer) : ViewModel() {
 
     fun cambiarCorreo(value: String) { _uiState.value = _uiState.value.copy(correo = value, error = null) }
     fun cambiarClave(value: String) { _uiState.value = _uiState.value.copy(clave = value, error = null) }
+    fun usarCuentaAdmin() {
+        _uiState.value = _uiState.value.copy(correo = "admin@admin.com", clave = "admin123456", error = null)
+    }
+    fun limpiarCredencialesAdmin() {
+        _uiState.value = _uiState.value.copy(correo = "", clave = "", error = null)
+    }
 
-    fun iniciarSesion() {
+    fun iniciarSesion(accesoAdmin: Boolean = false) {
         val datos = _uiState.value
         when {
             datos.correo.isBlank() -> _uiState.value = datos.copy(error = "Ingresa tu correo electrónico.")
@@ -35,10 +41,20 @@ class LoginViewModel(private val appContainer: AppContainer) : ViewModel() {
             datos.clave.isBlank() -> _uiState.value = datos.copy(error = "Ingresa tu contraseña.")
             else -> viewModelScope.launch {
                 _uiState.value = datos.copy(cargando = true, error = null)
-                appContainer.authRepository.login(datos.correo.trim(), datos.clave)
-                    .onSuccess { _sesionIniciada.value = it }
-                    .onFailure { _uiState.value = datos.copy(error = mensajeError(it)) }
-                _uiState.value = _uiState.value.copy(cargando = false)
+                try {
+                    appContainer.authRepository.login(datos.correo.trim(), datos.clave)
+                        .onSuccess { sesion ->
+                            val rolEsperadoAdmin = sesion.rol == com.tecsup.computerstore.domain.model.Rol.ADMIN
+                            if (rolEsperadoAdmin == accesoAdmin) _sesionIniciada.value = sesion
+                            else {
+                                appContainer.authRepository.logout()
+                                _uiState.value = _uiState.value.copy(error = if (accesoAdmin) "La cuenta no tiene rol de administrador." else "Esta cuenta es de administrador. Cambia al acceso Administrador.")
+                            }
+                        }
+                        .onFailure { _uiState.value = _uiState.value.copy(error = mensajeError(it)) }
+                } finally {
+                    _uiState.value = _uiState.value.copy(cargando = false)
+                }
             }
         }
     }

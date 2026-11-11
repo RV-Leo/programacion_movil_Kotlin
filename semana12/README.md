@@ -44,17 +44,16 @@ Guarda cada imagen en `app/src/main/res/drawable/` con el formato `product_ID.we
 - **Autenticación y perfiles**: Firebase Authentication y Cloud Firestore para cuentas, perfiles y roles. Los productos se guardan localmente con Room; Firebase no es el almacén del catálogo.
 - **Asincronía**: Kotlin Coroutines & StateFlow.
 
-## Configurar una cuenta de administrador
+## Accesos de la app
 
-La app no contiene usuarios ni contraseñas de administrador predefinidos. Para crear la primera cuenta:
+La pantalla inicial presenta un switch para elegir **Cliente** o **Administrador**. Si no existe una sesión activa, la app muestra el Login; una sesión válida entra al catálogo.
 
-1. En Firebase Console, abre **Authentication → Users → Add user** y registra el correo y la contraseña del administrador.
-2. Copia el UID de esa cuenta.
-3. En **Firestore Database**, crea la colección `usuarios` y un documento cuyo ID sea ese UID. Guarda los campos `nombre` (texto) y `rol` (texto con valor exacto `admin`).
-4. Publica las reglas de [`firestore.rules`](firestore.rules) en la pestaña **Rules** de Firestore.
-5. Inicia sesión con esa cuenta en la app. El panel de gestión está en Perfil y el control de pedidos está en la pestaña Procesos.
+- Administrador de demostración: `admin@admin.com`
+- Contraseña: `admin123456`
 
-Las nuevas cuentas creadas desde la app siempre reciben el rol `usuario`; no existe una opción para que un cliente se eleve a administrador. Revisa las reglas de Firestore antes de publicar la app. Los pedidos y sus importes son datos de demostración y no sustituyen un backend de pagos.
+En Firebase Console, habilita el proveedor **Authentication → Sign-in method → Email/Password** y publica [`firestore.rules`](firestore.rules) en **Firestore → Rules**. Después de configurar `google-services.json`, el primer inicio de sesión con esos datos crea la cuenta y el perfil `admin`. El registro normal crea usuarios con rol `usuario` y bloquea el correo reservado del administrador. Estas credenciales son para desarrollo/demo; cámbialas antes de publicar o usar con información real.
+
+El cliente ve Inicio, Carrito y Perfil en la navegación inferior. El administrador ve Inicio, Procesos y Perfil; solo su rol permite consultar y actualizar todos los pedidos. Los pedidos e importes siguen siendo demostrativos y no sustituyen un backend de pagos.
 
 ## 📋 Requisitos Previos e Instalación
 

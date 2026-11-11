@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -70,9 +71,15 @@ import kotlinx.coroutines.launch
 
 private data class BottomDestination(val route: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 
-private val bottomDestinations = listOf(
+private val adminDestinations = listOf(
     BottomDestination("catalogo", "Inicio", Icons.Default.Home),
     BottomDestination("procesos", "Procesos", Icons.Default.ReceiptLong),
+    BottomDestination("perfil", "Perfil", Icons.Default.Person)
+)
+
+private val customerDestinations = listOf(
+    BottomDestination("catalogo", "Inicio", Icons.Default.Home),
+    BottomDestination("carrito", "Carrito", Icons.Default.ShoppingCart),
     BottomDestination("perfil", "Perfil", Icons.Default.Person)
 )
 
@@ -126,7 +133,8 @@ private fun ComputerStoreApp(appContainer: AppContainer, darkMode: Boolean, onDa
     val navEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navEntry?.destination?.route
     val startDestination = if (session == null) "login" else "catalogo"
-    val showBottomBar = session != null && currentRoute in setOf("catalogo", "procesos", "perfil")
+    val bottomDestinations = if (session?.rol == Rol.ADMIN) adminDestinations else customerDestinations
+    val showBottomBar = session != null && currentRoute in bottomDestinations.map { it.route }
 
     fun navigateToTab(route: String) {
         navController.navigate(route) {
@@ -210,7 +218,11 @@ private fun ComputerStoreApp(appContainer: AppContainer, darkMode: Boolean, onDa
                 )
             }
             composable("procesos") {
-                session?.let { ProcesosScreen(orderRepository, it.uid, it.rol == Rol.ADMIN) }
+                if (session?.rol == Rol.ADMIN) {
+                    session?.let { ProcesosScreen(orderRepository, it.uid, esAdmin = true) }
+                } else {
+                    LaunchedEffect(Unit) { navController.navigate("catalogo") { popUpTo("procesos") { inclusive = true } } }
+                }
             }
             composable("carrito") {
                 CarritoScreen(
@@ -242,7 +254,7 @@ private fun ComputerStoreApp(appContainer: AppContainer, darkMode: Boolean, onDa
                     onBack = { navController.popBackStack() },
                     onOrderComplete = {
                         cart = emptyMap()
-                        navigateToTab("procesos")
+                        navigateToTab("catalogo")
                     }
                 )
             }
@@ -266,7 +278,11 @@ private fun ComputerStoreApp(appContainer: AppContainer, darkMode: Boolean, onDa
             composable("admin") {
                 if (session?.rol == Rol.ADMIN) {
                     val vm: AdminViewModel = viewModel(factory = AdminViewModelFactory.create(appContainer))
-                    AdminScreen(vm, onBack = { navController.popBackStack() })
+                    AdminScreen(
+                        vm,
+                        onBack = { navController.popBackStack() },
+                        onProcessesClick = { navController.navigate("procesos") }
+                    )
                 } else {
                     LaunchedEffect(Unit) { navController.popBackStack() }
                 }

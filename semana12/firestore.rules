@@ -5,15 +5,24 @@ service cloud.firestore {
     function isAdmin() {
       return signedIn() && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
     }
+    function isAdminBootstrap(uid) {
+      return signedIn() && request.auth.uid == uid
+        && request.auth.token.email == 'admin@admin.com'
+        && request.resource.data.nombre == 'admin'
+        && request.resource.data.rol == 'admin'
+        && request.resource.data.keys().hasOnly(['nombre', 'rol']);
+    }
 
     match /usuarios/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow create: if signedIn() && request.auth.uid == uid
-        && request.resource.data.rol == 'usuario'
-        && request.resource.data.keys().hasOnly(['nombre', 'rol']);
+        && ((request.resource.data.rol == 'usuario'
+          && request.resource.data.keys().hasOnly(['nombre', 'rol']))
+          || isAdminBootstrap(uid));
       allow update: if signedIn() && request.auth.uid == uid
-        && request.resource.data.rol == resource.data.rol
-        && request.resource.data.keys().hasOnly(['nombre', 'rol']);
+        && ((request.resource.data.rol == resource.data.rol
+          && request.resource.data.keys().hasOnly(['nombre', 'rol']))
+          || isAdminBootstrap(uid));
       allow delete: if isAdmin();
     }
 

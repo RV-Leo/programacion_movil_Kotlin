@@ -17,6 +17,8 @@ import kotlinx.coroutines.withTimeout
 class FirebaseAuthRepository(context: Context) : AuthRepository {
     private companion object {
         const val FIREBASE_TIMEOUT_MS = 20_000L
+        const val ADMIN_EMAIL = "admin@admin.com"
+        const val ADMIN_PASSWORD = "admin123456"
     }
 
     private val firebaseApp = FirebaseApp.getApps(context.applicationContext).firstOrNull()
@@ -52,9 +54,27 @@ class FirebaseAuthRepository(context: Context) : AuthRepository {
         val currentAuth = auth
             ?: return Result.failure(IllegalStateException("Falta configurar Firebase: coloca google-services.json en app/."))
         return try {
-            val user = currentAuth.signInWithEmailAndPassword(email, clave).await().user
+            val normalizedEmail = email.trim().lowercase()
+            val bootstrapAdmin = normalizedEmail == ADMIN_EMAIL && clave == ADMIN_PASSWORD
+            val user = runCatching {
+                withTimeout(FIREBASE_TIMEOUT_MS) {
+                    currentAuth.signInWithEmailAndPassword(normalizedEmail, clave).await().user
+                }
+            }.getOrElse { signInError ->
+                if (!bootstrapAdmin) throw signInError
+                withTimeout(FIREBASE_TIMEOUT_MS) {
+                    currentAuth.createUserWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD).await().user
+                }
+            }
                 ?: throw IllegalStateException("Firebase no devolvió el usuario autenticado.")
-            Result.success(leerSesion(user.uid, user.email ?: email))
+            if (bootstrapAdmin) {
+                val database = firestore ?: throw IllegalStateException("Firestore no está configurado.")
+                withTimeout(FIREBASE_TIMEOUT_MS) {
+                    database.collection("usuarios").document(user.uid)
+                        .set(mapOf("nombre" to "admin", "rol" to "admin")).await()
+                }
+            }
+            Result.success(leerSesion(user.uid, user.email ?: normalizedEmail))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -68,6 +88,9 @@ class FirebaseAuthRepository(context: Context) : AuthRepository {
         return try {
             // Reutiliza la cuenta si Auth la creó pero el guardado del perfil falló.
             val normalizedEmail = email.trim()
+            if (normalizedEmail.equals(ADMIN_EMAIL, ignoreCase = true)) {
+                throw IllegalArgumentException("Esta cuenta está reservada para el acceso de administrador.")
+            }
             val user = currentAuth.currentUser
                 ?.takeIf { it.email.equals(normalizedEmail, ignoreCase = true) }
                 ?: withTimeout(FIREBASE_TIMEOUT_MS) {
