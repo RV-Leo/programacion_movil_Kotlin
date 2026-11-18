@@ -10,12 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.ronda.centrotareas.ui.PantallaTareas
 import com.ronda.centrotareas.ui.theme.CentroTareasTheme
+import com.ronda.centrotareas.data.TareasRepositoryLocal
+import com.ronda.centrotareas.viewmodel.TareasViewModelFactory
 import com.ronda.centrotareas.viewmodel.TareasViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val viewModel = ViewModelProvider(this)[TareasViewModel::class.java]
+        val factory = TareasViewModelFactory(TareasRepositoryLocal())
+        val viewModel = ViewModelProvider(this, factory)[TareasViewModel::class.java]
         setContent {
             CentroTareasTheme {
                 Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
@@ -25,3 +28,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
