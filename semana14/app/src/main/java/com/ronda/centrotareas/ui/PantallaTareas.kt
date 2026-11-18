@@ -26,9 +26,10 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { contador++ }) { Text("Tócame: $contador") }
-                Button(onClick = viewModel::tareaLargaMala) { Text("Tarea larga (MAL)") }
+                Button(onClick = viewModel::tareaLarga) { Text("Tarea larga") }
                 Text(mensaje)
             }
         }
     }
 }
+
