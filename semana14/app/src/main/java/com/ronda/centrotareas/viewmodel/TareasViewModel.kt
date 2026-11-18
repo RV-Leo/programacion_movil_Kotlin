@@ -141,7 +141,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     fueTimeout = false
                     ultimoError = e.message ?: "Error desconocido"
                 }
-                if (intento < 3) delay(500L shl intento)
+                if (intento < 3) delay(listOf(500L, 1_000L, 2_000L)[intento])
             }
             _carga.value = CargaUi.Error(
                 if (fueTimeout) "Tardó demasiado" else "No se pudo cargar: $ultimoError"
