@@ -48,3 +48,10 @@ La pantalla se congela 4 segundos porque `Thread.sleep` bloquea el hilo principa
 3. `Dispatchers.Default` sirve para cálculos intensivos de CPU, como primos. `Dispatchers.IO` se usa para operaciones bloqueantes de red o disco.
 4. `viewModelScope` se cancela cuando se destruye el ViewModel; ante una rotación, el ViewModel normalmente sobrevive y la tarea continúa.
 5. `async` inicia ambas cargas concurrentemente y el tiempo se acerca a la más lenta (3 segundos), no a su suma (5 segundos). `coroutineScope` cancela la tarea hermana y propaga el fallo.
+
+## Mejoras de Fase 2 (`mejora-ia`)
+
+- La tarea con barra de progreso ahora se produce desde un `Flow` en el Repository y corre en `Dispatchers.Default`.
+- Las cargas tienen un límite de 2 segundos y reintentan hasta tres veces con espera creciente.
+- El conteo de primos emite porcentajes y el resultado final desde un único `Flow` cancelable.
+- El registro de prompts deja claro qué sugerencias aportó Codex; no se atribuyen respuestas a Gemini.
