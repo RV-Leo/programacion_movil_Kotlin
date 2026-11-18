@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -24,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.ronda.centrotareas.model.CargaUi
 import com.ronda.centrotareas.model.PrimosUi
 import com.ronda.centrotareas.viewmodel.TareasViewModel
 
@@ -33,9 +35,11 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val carga by viewModel.carga.collectAsState()
     var contador by remember { mutableIntStateOf(0) }
     var hastaTexto by remember { mutableStateOf("500000") }
     val hasta = hastaTexto.toIntOrNull()?.takeIf { it >= 2 }
+
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("CentroTareas")
         Card(Modifier.fillMaxWidth()) {
@@ -72,6 +76,21 @@ fun PantallaTareas(viewModel: TareasViewModel) {
                     PrimosUi.Cancelado -> Text("Cancelado")
                     PrimosUi.Inicial -> Unit
                 }
+            }
+        }
+        Card(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("Dos cargas")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = viewModel::cargarUnaPorUna, enabled = carga != CargaUi.Cargando) { Text("Una por una") }
+                    Button(onClick = viewModel::cargarALaVez, enabled = carga != CargaUi.Cargando) { Text("A la vez") }
+                }
+                when (val estado = carga) {
+                    CargaUi.Cargando -> CircularProgressIndicator()
+                    is CargaUi.Exito -> Text("Modo: ${estado.modo}\nPerfil: ${estado.perfil}\nPedidos: ${estado.pedidos}\nTiempo: ${estado.milisegundos} ms")
+                    else -> Unit
+                }
+                Text("«Una por una» tarda ≈ 5000 ms")
             }
         }
     }

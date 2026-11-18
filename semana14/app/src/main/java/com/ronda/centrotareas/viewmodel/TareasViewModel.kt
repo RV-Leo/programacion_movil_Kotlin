@@ -6,6 +6,8 @@ import com.ronda.centrotareas.data.TareasRepository
 import com.ronda.centrotareas.model.CargaUi
 import com.ronda.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,6 +27,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     val primos = _primos.asStateFlow()
     private var trabajo: Job? = null
     private var trabajoPrimos: Job? = null
+    private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
+    val carga = _carga.asStateFlow()
 
     fun tareaLarga() {
         if (_corriendo.value) return
@@ -68,5 +72,28 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         }
     }
 
-    fun cancelarPrimos() { trabajoPrimos?.cancel() }
+'    fun cancelarPrimos() { trabajoPrimos?.cancel() }
+
+    fun cargarUnaPorUna() = cargar(paralelo = false)
+    fun cargarALaVez() = cargar(paralelo = true)
+
+    private fun cargar(paralelo: Boolean) {
+        if (_carga.value == CargaUi.Cargando) return
+        viewModelScope.launch {
+            _carga.value = CargaUi.Cargando
+            val inicio = System.currentTimeMillis()
+            val (perfil, pedidos) = if (paralelo) coroutineScope {
+                val perfilDeferred = async { repo.cargarPerfil() }
+                val pedidosDeferred = async { repo.cargarPedidos(false) }
+                perfilDeferred.await() to pedidosDeferred.await()
+            } else {
+                val perfilCargado = repo.cargarPerfil()
+                val pedidosCargados = repo.cargarPedidos(false)
+                perfilCargado to pedidosCargados
+            }
+            val modo = if (paralelo) "A la vez" else "Una por una"
+            _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
+        }
+    }'
 }
+

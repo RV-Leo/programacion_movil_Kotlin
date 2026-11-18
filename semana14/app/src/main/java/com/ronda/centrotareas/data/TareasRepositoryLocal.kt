@@ -2,6 +2,7 @@ package com.ronda.centrotareas.data
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 
@@ -13,6 +14,16 @@ class TareasRepositoryLocal : TareasRepository {
             if (esPrimo(n)) cantidad++
         }
         cantidad
+    }
+
+    override suspend fun cargarPerfil(): String {
+        delay(2_000)
+        return "Ana Torres (ficticia)"
+    }
+
+    override suspend fun cargarPedidos(simularError: Boolean): List<String> {
+        delay(3_000)
+        return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
     private fun esPrimo(n: Int): Boolean {
