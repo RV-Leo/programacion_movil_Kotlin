@@ -1,5 +1,6 @@
 package com.ronda.centrotareas.data
 
+import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -23,6 +24,7 @@ class TareasRepositoryLocal : TareasRepository {
 
     override suspend fun cargarPedidos(simularError: Boolean): List<String> {
         delay(3_000)
+        if (simularError) throw IOException("Sin conexión")
         return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
@@ -36,3 +38,4 @@ class TareasRepositoryLocal : TareasRepository {
         return true
     }
 }
+

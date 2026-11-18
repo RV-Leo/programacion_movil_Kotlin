@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -36,6 +37,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
+    val simularError by viewModel.simularError.collectAsState()
     var contador by remember { mutableIntStateOf(0) }
     var hastaTexto by remember { mutableStateOf("500000") }
     val hasta = hastaTexto.toIntOrNull()?.takeIf { it >= 2 }
@@ -80,7 +82,11 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Dos cargas")
+'                Text("Dos cargas")
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("Simular error")
+                    Switch(checked = simularError, onCheckedChange = viewModel::cambiarSimularError)
+                }'
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = viewModel::cargarUnaPorUna, enabled = carga != CargaUi.Cargando) { Text("Una por una") }
                     Button(onClick = viewModel::cargarALaVez, enabled = carga != CargaUi.Cargando) { Text("A la vez") }
@@ -95,3 +101,4 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         }
     }
 }
+

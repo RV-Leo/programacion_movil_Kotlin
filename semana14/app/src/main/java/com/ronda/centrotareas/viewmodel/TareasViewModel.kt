@@ -28,6 +28,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private var trabajo: Job? = null
     private var trabajoPrimos: Job? = null
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
+    private val _simularError = MutableStateFlow(false)
+    val simularError = _simularError.asStateFlow()
     val carga = _carga.asStateFlow()
 
     fun tareaLarga() {
@@ -74,6 +76,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
 '    fun cancelarPrimos() { trabajoPrimos?.cancel() }
 
+    fun cambiarSimularError(valor: Boolean) { _simularError.value = valor }
     fun cargarUnaPorUna() = cargar(paralelo = false)
     fun cargarALaVez() = cargar(paralelo = true)
 
@@ -84,11 +87,11 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             val inicio = System.currentTimeMillis()
             val (perfil, pedidos) = if (paralelo) coroutineScope {
                 val perfilDeferred = async { repo.cargarPerfil() }
-                val pedidosDeferred = async { repo.cargarPedidos(false) }
+                val pedidosDeferred = async { repo.cargarPedidos(simular) }
                 perfilDeferred.await() to pedidosDeferred.await()
             } else {
                 val perfilCargado = repo.cargarPerfil()
-                val pedidosCargados = repo.cargarPedidos(false)
+                val pedidosCargados = repo.cargarPedidos(simular)
                 perfilCargado to pedidosCargados
             }
             val modo = if (paralelo) "A la vez" else "Una por una"
@@ -96,4 +99,5 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         }
     }'
 }
+
 
