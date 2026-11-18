@@ -88,27 +88,38 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            try {
-                val (perfil, pedidos) = withTimeout(2_000) {
-                    if (paralelo) coroutineScope {
-                        val perfilDeferred = async { repo.cargarPerfil() }
-                        val pedidosDeferred = async { repo.cargarPedidos(simular) }
-                        perfilDeferred.await() to pedidosDeferred.await()
-                    } else {
-                        val perfilCargado = repo.cargarPerfil()
-                        val pedidosCargados = repo.cargarPedidos(simular)
-                        perfilCargado to pedidosCargados
+            var ultimoError = "Error desconocido"
+            var fueTimeout = false
+            for (intento in 0..3) {
+                try {
+                    val (perfil, pedidos) = withTimeout(2_000) {
+                        if (paralelo) coroutineScope {
+                            val perfilDeferred = async { repo.cargarPerfil() }
+                            val pedidosDeferred = async { repo.cargarPedidos(simular) }
+                            perfilDeferred.await() to pedidosDeferred.await()
+                        } else {
+                            val perfilCargado = repo.cargarPerfil()
+                            val pedidosCargados = repo.cargarPedidos(simular)
+                            perfilCargado to pedidosCargados
+                        }
                     }
+                    val modo = if (paralelo) "A la vez" else "Una por una"
+                    _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
+                    return@launch
+                } catch (e: TimeoutCancellationException) {
+                    fueTimeout = true
+                    ultimoError = e.message ?: "Tardó demasiado"
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    fueTimeout = false
+                    ultimoError = e.message ?: "Error desconocido"
                 }
-                val modo = if (paralelo) "A la vez" else "Una por una"
-                _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
-            } catch (e: TimeoutCancellationException) {
-                _carga.value = CargaUi.Error("Tardó demasiado")
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
+                if (intento < 3) delay(500L shl intento)
             }
+            _carga.value = CargaUi.Error(
+                if (fueTimeout) "Tardó demasiado" else "No se pudo cargar: $ultimoError"
+            )
         }
     }
 }
