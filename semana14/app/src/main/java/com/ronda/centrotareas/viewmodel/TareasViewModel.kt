@@ -10,12 +10,14 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _mensaje = MutableStateFlow("Listo")
@@ -82,22 +84,33 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     private fun cargar(paralelo: Boolean) {
         if (_carga.value == CargaUi.Cargando) return
+        val simular = _simularError.value
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = if (paralelo) coroutineScope {
-                val perfilDeferred = async { repo.cargarPerfil() }
-                val pedidosDeferred = async { repo.cargarPedidos(simular) }
-                perfilDeferred.await() to pedidosDeferred.await()
-            } else {
-                val perfilCargado = repo.cargarPerfil()
-                val pedidosCargados = repo.cargarPedidos(simular)
-                perfilCargado to pedidosCargados
+            try {
+                val (perfil, pedidos) = withTimeout(2_000) {
+                    if (paralelo) coroutineScope {
+                        val perfilDeferred = async { repo.cargarPerfil() }
+                        val pedidosDeferred = async { repo.cargarPedidos(simular) }
+                        perfilDeferred.await() to pedidosDeferred.await()
+                    } else {
+                        val perfilCargado = repo.cargarPerfil()
+                        val pedidosCargados = repo.cargarPedidos(simular)
+                        perfilCargado to pedidosCargados
+                    }
+                }
+                val modo = if (paralelo) "A la vez" else "Una por una"
+                _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
+            } catch (e: TimeoutCancellationException) {
+                _carga.value = CargaUi.Error("Tardó demasiado")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
             }
-            val modo = if (paralelo) "A la vez" else "Una por una"
-            _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
         }
-    }'
+    }
 }
 
 
