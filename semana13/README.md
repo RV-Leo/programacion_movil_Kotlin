@@ -35,10 +35,6 @@ La vista solo representa estado y envía eventos. El ViewModel no recibe Context
 
 Biblioteca Central, Cafetería Campus, Laboratorio de Cómputo, Auditorio Principal y Estacionamiento Norte. Coordenadas entregadas por la guía del laboratorio.
 
-## Capturas requeridas
-
-Añade aquí capturas reales del emulador: `capturas/permiso.png`, `capturas/mapa-ubicacion.png`, `capturas/marcadores.png`, `capturas/lista-ordenada.png` y `capturas/error.png`.
-
 ## Para pensar
 
 1. `FusedLocationProviderClient` va en el Repository para encapsular el servicio externo. Así el ViewModel depende de una interfaz y se puede probar sin Android Context.
@@ -47,6 +43,4 @@ Añade aquí capturas reales del emulador: `capturas/permiso.png`, `capturas/map
 4. La distancia se calcula en el ViewModel mediante utilidades puras/de ubicación, no en un Composable, para respetar MVVM y separar presentación de lógica.
 5. Si el usuario niega el permiso, la pantalla muestra el error y ofrece abrir ajustes de la app. No se intenta consultar ubicación hasta que el permiso vuelva a estar concedido.
 
-## Capturas
 
-Todavía deben tomarse en Android Studio/emulador y añadirse a `capturas/` antes de entregar.
