@@ -8,10 +8,25 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import com.ronda.centrotareas.model.ProgresoPrimos
 import kotlinx.coroutines.withContext
 import android.util.Log
 
 class TareasRepositoryLocal : TareasRepository {
+    override fun contarPrimosConProgreso(hasta: Int): Flow<ProgresoPrimos> = flow {
+        var cantidad = 0
+        val intervalo = (hasta / 100).coerceAtLeast(1)
+        emit(ProgresoPrimos(0f))
+        for (n in 2..hasta) {
+            kotlinx.coroutines.currentCoroutineContext().ensureActive()
+            if (esPrimo(n)) cantidad++
+            if (n % intervalo == 0 || n == hasta) {
+                val progreso = n.toFloat() / hasta
+                emit(ProgresoPrimos(progreso, if (n == hasta) cantidad else null))
+            }
+        }
+    }.flowOn(Dispatchers.Default)
+
     override fun progresoTarea(): Flow<Float> = flow {
         for (i in 1..100) {
             kotlinx.coroutines.currentCoroutineContext().ensureActive()

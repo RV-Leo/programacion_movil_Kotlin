@@ -1,22 +1,21 @@
 package com.ronda.centrotareas.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ronda.centrotareas.data.TareasRepository
 import com.ronda.centrotareas.model.CargaUi
 import com.ronda.centrotareas.model.PrimosUi
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
@@ -28,12 +27,14 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     val corriendo = _corriendo.asStateFlow()
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
     val primos = _primos.asStateFlow()
+    private val _progresoPrimos = MutableStateFlow(0f)
+    val progresoPrimos = _progresoPrimos.asStateFlow()
     private var trabajo: Job? = null
     private var trabajoPrimos: Job? = null
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
+    val carga = _carga.asStateFlow()
     private val _simularError = MutableStateFlow(false)
     val simularError = _simularError.asStateFlow()
-    val carga = _carga.asStateFlow()
 
     fun tareaLarga() {
         if (_corriendo.value) return
@@ -42,9 +43,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _progreso.value = 0f
             _mensaje.value = "Trabajando..."
             try {
-                android.util.Log.d("HILO", "Antes: ${Thread.currentThread().name}")
+                Log.d("HILO", "Antes: ${Thread.currentThread().name}")
                 repo.progresoTarea().collect { _progreso.value = it }
-                android.util.Log.d("HILO", "Después: ${Thread.currentThread().name}")
+                Log.d("HILO", "Después: ${Thread.currentThread().name}")
                 _mensaje.value = "Terminó"
             } catch (e: CancellationException) {
                 throw e
@@ -76,9 +77,34 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         }
     }
 
-'    fun cancelarPrimos() { trabajoPrimos?.cancel() }
+    fun contarConProgreso(hasta: Int) {
+        if (_primos.value == PrimosUi.Calculando) return
+        trabajoPrimos = viewModelScope.launch {
+            _primos.value = PrimosUi.Calculando
+            _progresoPrimos.value = 0f
+            val inicio = System.currentTimeMillis()
+            try {
+                repo.contarPrimosConProgreso(hasta).collect { estado ->
+                    _progresoPrimos.value = estado.progreso
+                    estado.cantidad?.let { cantidad ->
+                        _primos.value = PrimosUi.Listo(cantidad, System.currentTimeMillis() - inicio)
+                    }
+                }
+            } catch (e: CancellationException) {
+                _primos.value = PrimosUi.Cancelado
+                throw e
+            }
+        }
+    }
 
-    fun cambiarSimularError(valor: Boolean) { _simularError.value = valor }
+    fun cancelarPrimos() {
+        trabajoPrimos?.cancel()
+    }
+
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
+    }
+
     fun cargarUnaPorUna() = cargar(paralelo = false)
     fun cargarALaVez() = cargar(paralelo = true)
 
@@ -123,5 +149,3 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         }
     }
 }
-
-
