@@ -74,7 +74,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         }
     }
 
-'    fun cancelarPrimos() { trabajoPrimos?.cancel() }
+    fun cancelarPrimos() { trabajoPrimos?.cancel() }
 
     fun cambiarSimularError(valor: Boolean) { _simularError.value = valor }
     fun cargarUnaPorUna() = cargar(paralelo = false)
@@ -87,17 +87,17 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             val inicio = System.currentTimeMillis()
             val (perfil, pedidos) = if (paralelo) coroutineScope {
                 val perfilDeferred = async { repo.cargarPerfil() }
-                val pedidosDeferred = async { repo.cargarPedidos(simular) }
+                val pedidosDeferred = async { repo.cargarPedidos(simularError.value) }
                 perfilDeferred.await() to pedidosDeferred.await()
             } else {
                 val perfilCargado = repo.cargarPerfil()
-                val pedidosCargados = repo.cargarPedidos(simular)
+                val pedidosCargados = repo.cargarPedidos(simularError.value)
                 perfilCargado to pedidosCargados
             }
             val modo = if (paralelo) "A la vez" else "Una por una"
             _carga.value = CargaUi.Exito(modo, perfil, pedidos.size, System.currentTimeMillis() - inicio)
         }
-    }'
+    }
 }
 
 

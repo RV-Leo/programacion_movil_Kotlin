@@ -82,11 +82,11 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         }
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-'                Text("Dos cargas")
+                Text("Dos cargas")
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Simular error")
                     Switch(checked = simularError, onCheckedChange = viewModel::cambiarSimularError)
-                }'
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = viewModel::cargarUnaPorUna, enabled = carga != CargaUi.Cargando) { Text("Una por una") }
                     Button(onClick = viewModel::cargarALaVez, enabled = carga != CargaUi.Cargando) { Text("A la vez") }
