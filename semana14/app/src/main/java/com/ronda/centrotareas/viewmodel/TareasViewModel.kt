@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -39,10 +40,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _progreso.value = 0f
             _mensaje.value = "Trabajando..."
             try {
-                for (i in 1..100) {
-                    withContext(Dispatchers.Default) { delay(40) }
-                    _progreso.value = i / 100f
-                }
+                android.util.Log.d("HILO", "Antes: ${Thread.currentThread().name}")
+                repo.progresoTarea().collect { _progreso.value = it }
+                android.util.Log.d("HILO", "Después: ${Thread.currentThread().name}")
                 _mensaje.value = "Terminó"
             } catch (e: CancellationException) {
                 throw e
