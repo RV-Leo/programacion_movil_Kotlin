@@ -25,6 +25,7 @@ enum class EstadoPermiso(val etiqueta: String) {
 class AvisosViewModel(
     private val repository: AvisosRepository = AvisosRepositoryLocal()
 ) : ViewModel() {
+    val avisos: StateFlow<List<Aviso>> = repository.avisos
     private val _estadoPermiso = MutableStateFlow(EstadoPermiso.SIN_PEDIR)
     val estadoPermiso: StateFlow<EstadoPermiso> = _estadoPermiso.asStateFlow()
     private val _eventos = MutableSharedFlow<Aviso>()

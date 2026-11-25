@@ -55,6 +55,7 @@ fun PantallaAvisos(
     val estadoPermiso by viewModel.estadoPermiso.collectAsState()
     val faltan by viewModel.faltan.collectAsState()
     val escuchando by viewModel.escuchandoAvion.collectAsState()
+    val avisos by viewModel.avisos.collectAsState()
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -215,30 +216,25 @@ fun PantallaAvisos(
                 }
             }
 
-            Card(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Escuchar el modo avión",
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Switch(
-                        checked = escuchando,
-                        onCheckedChange = viewModel::cambiarEscucha
-                    )
-                }
+                Text(
+                    text = "Escuchar el modo avión",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Switch(
+                    checked = escuchando,
+                    onCheckedChange = viewModel::cambiarEscucha
+                )
             }
+
+            HistorialAvisos(avisos)
         }
     }
 }
