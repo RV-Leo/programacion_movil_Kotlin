@@ -88,6 +88,7 @@ private fun MuroCampusApp(vm: PostsViewModel) {
             PantallaDetalle(
                 vm = vm,
                 postId = idSeleccionado!!,
+                onDeleted = { idSeleccionado = null },
                 modifier = Modifier.padding(innerPadding)
             )
         }

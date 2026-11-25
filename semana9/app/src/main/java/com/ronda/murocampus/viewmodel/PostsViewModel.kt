@@ -44,6 +44,9 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _creacion = MutableStateFlow<UiState<Post>?>(null)
     val creacion = _creacion.asStateFlow()
 
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)
+    val eliminacion = _eliminacion.asStateFlow()
+
     init {
         cargar()
     }
@@ -73,6 +76,25 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
             repo.crear(NuevoPost(userId = 1, title = titulo.trim(), body = texto.trim()))
                 .onSuccess { _creacion.value = UiState.Exito(it) }
                 .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun limpiarEliminacion() {
+        _eliminacion.value = null
+    }
+
+    fun eliminar(id: Int) {
+        viewModelScope.launch {
+            _eliminacion.value = UiState.Cargando
+            repo.eliminar(id)
+                .onSuccess {
+                    _eliminacion.value = UiState.Exito(Unit)
+                    val estadoActual = _lista.value
+                    if (estadoActual is UiState.Exito) {
+                        _lista.value = UiState.Exito(estadoActual.datos.filterNot { it.id == id })
+                    }
+                }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
         }
     }
 
