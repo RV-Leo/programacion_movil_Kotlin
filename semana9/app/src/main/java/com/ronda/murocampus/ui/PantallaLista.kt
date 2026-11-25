@@ -11,6 +11,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -21,8 +23,9 @@ import com.ronda.murocampus.viewmodel.UiState
 
 @Composable
 fun PantallaLista(vm: PostsViewModel, onPostClick: (Int) -> Unit, modifier: Modifier = Modifier) {
-    val estado by vm.lista.collectAsStateWithLifecycle()
+    val estado by vm.listaVisible.collectAsStateWithLifecycle()
     val filtro by vm.usuarioFiltro.collectAsStateWithLifecycle()
+    val busqueda by vm.busqueda.collectAsStateWithLifecycle()
     Box(modifier.fillMaxSize()) {
         when (val actual = estado) {
             UiState.Cargando -> Cargando()
@@ -33,6 +36,15 @@ fun PantallaLista(vm: PostsViewModel, onPostClick: (Int) -> Unit, modifier: Modi
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
+                    OutlinedTextField(
+                        value = busqueda,
+                        onValueChange = vm::buscarTitulo,
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Buscar por título") },
+                        singleLine = true
+                    )
+                }
+                item {
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -41,13 +53,13 @@ fun PantallaLista(vm: PostsViewModel, onPostClick: (Int) -> Unit, modifier: Modi
                             FilterChip(
                                 selected = filtro == userId,
                                 onClick = { vm.filtrar(userId) },
-                                label = { androidx.compose.material3.Text(userId?.let { "Usuario $it" } ?: "Todos") }
+                                label = { Text(userId?.let { "Usuario $it" } ?: "Todos") }
                             )
                         }
                     }
                 }
                 if (actual.datos.isEmpty()) {
-                    item { androidx.compose.material3.Text("Sin publicaciones") }
+                    item { Text("Sin publicaciones") }
                 } else {
                     items(actual.datos, key = { it.id }) { post ->
                         TarjetaPost(post = post, onClick = { onPostClick(post.id) })
