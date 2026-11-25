@@ -41,6 +41,9 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle = _detalle.asStateFlow()
 
+    private val _creacion = MutableStateFlow<UiState<Post>?>(null)
+    val creacion = _creacion.asStateFlow()
+
     init {
         cargar()
     }
@@ -57,6 +60,20 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     fun filtrar(userId: Int?) {
         _usuarioFiltro.value = userId
         cargar()
+    }
+
+    fun limpiarCreacion() {
+        _creacion.value = null
+    }
+
+    fun publicar(titulo: String, texto: String) {
+        if (titulo.isBlank() || texto.isBlank()) return
+        viewModelScope.launch {
+            _creacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo.trim(), body = texto.trim()))
+                .onSuccess { _creacion.value = UiState.Exito(it) }
+                .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
     }
 
     fun abrir(id: Int) {
