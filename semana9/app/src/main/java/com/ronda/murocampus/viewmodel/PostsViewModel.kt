@@ -34,6 +34,48 @@ fun mensajeDe(e: Throwable): String = when (e) {
 
 data class DetalleUi(val post: Post, val comentarios: List<Comentario>)
 
+private val tecsupTitles = listOf(
+    "Laboratorio de Inteligencia Artificial con Modelos Locales en Tecsup",
+    "Proyecto Integrador: Automatización de Celda Robotizada en Mecatrónica",
+    "Seminario Avanzado de Ciberseguridad y Protección de Redes Industriales",
+    "Desarrollo de Aplicaciones Móviles Nativas con Jetpack Compose y Kotlin",
+    "Diseño y Mantenimiento de Sistemas SCADA para la Industria 4.0",
+    "Taller Práctico de IoT y Sensores Inteligentes con Arduino y ESP32",
+    "Cloud Computing y DevOps: Despliegue de Arquitecturas en AWS",
+    "Optimización de Procesos de Manufactura Esbelta (Lean Manufacturing)",
+    "Instalación de Fibra Óptica y Conectividad de Alta Velocidad",
+    "Gestión de Proyectos Tecnológicos con Metodologías Ágiles Scrum"
+)
+
+private val tecsupBodies = listOf(
+    "Estudiantes de la carrera de Diseño y Desarrollo de Software están desarrollando modelos predictivos utilizando IA en el campus de Tecsup.",
+    "El equipo de Mecatrónica Industrial finalizó con éxito el montaje y programación de los controladores lógicos programables (PLC) para la línea de ensamblaje.",
+    "Se convoca a toda la comunidad estudiantil al workshop de hacking ético y mitigación de vulnerabilidades organizado por la facultad de TI.",
+    "Aprende las mejores prácticas de arquitectura limpia, estados en Compose y ViewModels reactivos en las sesiones prácticas de este ciclo.",
+    "Revisión de normativas técnicas y protocolos industriales para garantizar la eficiencia energética en plantas de procesamiento.",
+    "Pruebas de campo con adquisición de datos en tiempo real mediante microcontroladores para optimizar el monitoreo ambiental.",
+    "Configuración de contenedores Docker y pipelines de integración continua para proyectos de software de alto rendimiento.",
+    "Análisis de casos reales de la industria minera y manufacturera para la reducción de tiempos de ciclo y desperdicios.",
+    "Instalación de fibra óptica y certificación de enlaces de red de área local para laboratorios de computación.",
+    "Planificación de sprints, tableros Kanban y entrega continua de valor para los proyectos finales de titulación."
+)
+
+fun enriquecePost(post: Post): Post {
+    val index = kotlin.math.abs(post.id - 1) % tecsupTitles.size
+    val userCarrera = when (post.userId) {
+        1 -> "Software y IA"
+        2 -> "Mecatrónica"
+        3 -> "Ciberseguridad"
+        4 -> "Redes y Telecom"
+        5 -> "Automatización"
+        else -> "Tecnología Tecsup"
+    }
+    return post.copy(
+        title = "[${userCarrera}] ${tecsupTitles[index]}",
+        body = tecsupBodies[index]
+    )
+}
+
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista = _lista.asStateFlow()
@@ -69,7 +111,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         viewModelScope.launch {
             _lista.value = UiState.Cargando
             (_usuarioFiltro.value?.let { repo.porUsuario(it) } ?: repo.listar())
-                .onSuccess { _lista.value = UiState.Exito(it) }
+                .onSuccess { posts ->
+                    val postsTecsup = posts.map { enriquecePost(it) }
+                    _lista.value = UiState.Exito(postsTecsup)
+                }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
         }
     }
@@ -92,7 +137,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         viewModelScope.launch {
             _creacion.value = UiState.Cargando
             repo.crear(NuevoPost(userId = 1, title = titulo.trim(), body = texto.trim()))
-                .onSuccess { _creacion.value = UiState.Exito(it) }
+                .onSuccess { nuevoPost ->
+                    val postEnriquecido = enriquecePost(nuevoPost)
+                    _creacion.value = UiState.Exito(postEnriquecido)
+                }
                 .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
         }
     }
@@ -121,9 +169,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
             _detalle.value = UiState.Cargando
             try {
                 val resultado = coroutineScope {
-                    val post = async { repo.detalle(id).getOrThrow() }
+                    val postRaw = repo.detalle(id).getOrThrow()
+                    val post = enriquecePost(postRaw)
                     val comentarios = async { repo.comentarios(id).getOrThrow() }
-                    DetalleUi(post.await(), comentarios.await())
+                    DetalleUi(post, comentarios.await())
                 }
                 _detalle.value = UiState.Exito(resultado)
             } catch (e: CancellationException) {
@@ -134,3 +183,4 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         }
     }
 }
+

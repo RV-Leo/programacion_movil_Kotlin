@@ -8,12 +8,14 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -21,6 +23,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ronda.murocampus.data.PostRepositoryRemote
@@ -65,26 +69,50 @@ private fun MuroCampusApp(vm: PostsViewModel, oscuro: Boolean, cambiarTema: () -
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
-                    Column {
-                        Text("MuroCampus", style = androidx.compose.material3.MaterialTheme.typography.titleLarge)
-                        Text("COMUNIDAD UNIVERSITARIA", style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
+                    Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
+                        Text(
+                            text = "MuroCampus",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "COMUNIDAD UNIVERSITARIA",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 },
                 actions = {
-                    IconButton(onClick = cambiarTema) {
-                        Text(if (oscuro) "☼" else "☾", style = androidx.compose.material3.MaterialTheme.typography.titleLarge)
+                    TextButton(onClick = cambiarTema) {
+                        Text(
+                            text = if (oscuro) "Claro" else "Oscuro",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             )
         },
         floatingActionButton = {
             if (idSeleccionado == null && !creando) {
-                FloatingActionButton(onClick = {
-                    vm.limpiarCreacion()
-                    creando = true
-                }) { Text("+") }
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        vm.limpiarCreacion()
+                        creando = true
+                    },
+                    shape = RoundedCornerShape(28.dp),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                ) {
+                    Text(
+                        text = "Nueva publicación",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     ) { innerPadding ->
@@ -126,3 +154,4 @@ fun GreetingPreview() {
         }
     }
 }
+
