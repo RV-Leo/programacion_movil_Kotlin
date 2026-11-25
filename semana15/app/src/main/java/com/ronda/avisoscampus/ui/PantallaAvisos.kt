@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
@@ -44,6 +46,7 @@ fun PantallaAvisos(
 ) {
     val contexto = LocalContext.current
     val estadoPermiso by viewModel.estadoPermiso.collectAsState()
+    val faltan by viewModel.faltan.collectAsState()
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -74,9 +77,10 @@ fun PantallaAvisos(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Card(
                 modifier = Modifier
@@ -147,6 +151,41 @@ fun PantallaAvisos(
                     )
                     Button(onClick = { viewModel.avisarAhora() }) {
                         Text("Mostrar aviso")
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "Recordatorio",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Button(
+                        onClick = { viewModel.recordarEn() },
+                        enabled = faltan == null
+                    ) {
+                        Text("Recordar en 10 s")
+                    }
+                    Button(
+                        onClick = { viewModel.cancelarRecordatorio() },
+                        enabled = faltan != null
+                    ) {
+                        Text("Cancelar")
+                    }
+                    faltan?.let { segundos ->
+                        Text("Faltan $segundos s")
                     }
                 }
             }

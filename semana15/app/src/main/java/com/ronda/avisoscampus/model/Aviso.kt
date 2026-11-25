@@ -8,5 +8,6 @@ data class Aviso(
 )
 
 enum class OrigenAviso {
-    BOTON
+    BOTON,
+    RECORDATORIO
 }
