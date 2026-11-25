@@ -2,6 +2,7 @@ package com.ronda.murocampus.data.remote
 
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -10,7 +11,15 @@ import retrofit2.converter.kotlinx.serialization.asConverterFactory
 object RetrofitClient {
     private val json = Json { ignoreUnknownKeys = true }
 
+    private val encabezadoJson = Interceptor { chain ->
+        val solicitud = chain.request().newBuilder()
+            .header("Accept", "application/json")
+            .build()
+        chain.proceed(solicitud)
+    }
+
     private val cliente = OkHttpClient.Builder()
+        .addInterceptor(encabezadoJson)
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })
