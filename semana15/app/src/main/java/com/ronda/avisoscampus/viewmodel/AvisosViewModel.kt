@@ -29,6 +29,8 @@ class AvisosViewModel(
     val estadoPermiso: StateFlow<EstadoPermiso> = _estadoPermiso.asStateFlow()
     private val _eventos = MutableSharedFlow<Aviso>()
     val eventos = _eventos.asSharedFlow()
+    private val _escuchandoAvion = MutableStateFlow(false)
+    val escuchandoAvion: StateFlow<Boolean> = _escuchandoAvion.asStateFlow()
     private var trabajo: Job? = null
     private val _faltan = MutableStateFlow<Int?>(null)
     val faltan: StateFlow<Int?> = _faltan.asStateFlow()
@@ -76,6 +78,25 @@ class AvisosViewModel(
 
     fun cancelarRecordatorio() {
         trabajo?.cancel()
+    }
+
+    fun cambiarEscucha(valor: Boolean) {
+        _escuchandoAvion.value = valor
+    }
+
+    fun alCambiarModoAvion(activo: Boolean) {
+        if (!_escuchandoAvion.value) return
+
+        val aviso = Aviso(
+            id = siguienteId.incrementAndGet(),
+            titulo = "Modo avión",
+            texto = if (activo) "Activado" else "Desactivado",
+            origen = OrigenAviso.MODO_AVION
+        )
+        viewModelScope.launch {
+            repository.registrar(aviso)
+            _eventos.emit(aviso)
+        }
     }
 
     private companion object {

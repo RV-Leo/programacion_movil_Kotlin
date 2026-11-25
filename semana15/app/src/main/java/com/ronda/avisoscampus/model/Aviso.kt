@@ -9,5 +9,6 @@ data class Aviso(
 
 enum class OrigenAviso {
     BOTON,
-    RECORDATORIO
+    RECORDATORIO,
+    MODO_AVION
 }
