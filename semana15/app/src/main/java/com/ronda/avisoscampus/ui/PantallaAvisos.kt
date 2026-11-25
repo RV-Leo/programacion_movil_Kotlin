@@ -1,9 +1,12 @@
 package com.ronda.avisoscampus.ui
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -56,6 +59,7 @@ fun PantallaAvisos(
     val faltan by viewModel.faltan.collectAsState()
     val escuchando by viewModel.escuchandoAvion.collectAsState()
     val avisos by viewModel.avisos.collectAsState()
+    val mensaje by viewModel.mensaje.collectAsState()
 
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -71,7 +75,9 @@ fun PantallaAvisos(
 
     LaunchedEffect(viewModel, contexto) {
         viewModel.eventos.collect { aviso ->
-            Notificador.mostrar(contexto, aviso)
+            if (!Notificador.mostrar(contexto, aviso)) {
+                viewModel.noSePudoMostrar()
+            }
         }
     }
 
@@ -158,6 +164,32 @@ fun PantallaAvisos(
                 }
             }
 
+            mensaje?.let { texto ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = texto,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                        Button(onClick = { abrirAjustesNotificaciones(contexto) }) {
+                            Text("Abrir ajustes")
+                        }
+                    }
+                }
+            }
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -235,6 +267,32 @@ fun PantallaAvisos(
             }
 
             HistorialAvisos(avisos)
+        }
+    }
+}
+
+private fun abrirAjustesNotificaciones(contexto: android.content.Context) {
+    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+    } else {
+        Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:${contexto.packageName}")
+        )
+    }
+
+    try {
+        contexto.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        val ajustesAplicacion = Intent(
+            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse("package:${contexto.packageName}")
+        )
+        try {
+            contexto.startActivity(ajustesAplicacion)
+        } catch (_: ActivityNotFoundException) {
+            // Mantiene la app abierta si el dispositivo no ofrece una pantalla de ajustes.
         }
     }
 }
