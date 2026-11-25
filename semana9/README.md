@@ -68,3 +68,12 @@ La guía requiere cinco capturas reales de la app: lista, detalle, filtro, formu
 ```
 
 La aplicación consulta `https://jsonplaceholder.typicode.com/`. JSONPlaceholder simula el POST y no conserva la publicación al volver a cargar la lista.
+
+## Mejoras de Fase 2
+
+- Búsqueda local por título de publicaciones ya cargadas.
+- Eliminación desde el detalle con confirmación y validación HTTP en Repository.
+- Encabezado `Accept: application/json` en el cliente OkHttp.
+- Modo claro/oscuro global y diseño con paleta verde petróleo, menta, coral y dorado.
+
+Consulta [PROMTS.md](PROMTS.md) para el prompt maestro de desarrollo y [PROMPTS.md](PROMPTS.md) para el registro de decisiones. Eliminar y crear usan JSONPlaceholder, que simula las mutaciones sin persistirlas en el servidor.
