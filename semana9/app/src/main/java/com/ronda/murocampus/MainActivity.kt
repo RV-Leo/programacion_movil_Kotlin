@@ -7,11 +7,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,11 +37,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MuroCampusTheme {
-                val vm: PostsViewModel = viewModel(
-                    factory = PostsViewModelFactory(PostRepositoryRemote(RetrofitClient.api))
-                )
-                MuroCampusApp(vm)
+            val vm: PostsViewModel = viewModel(
+                factory = PostsViewModelFactory(PostRepositoryRemote(RetrofitClient.api))
+            )
+            val sistemaOscuro = isSystemInDarkTheme()
+            var oscuro by rememberSaveable { mutableStateOf(sistemaOscuro) }
+            MuroCampusTheme(darkTheme = oscuro) {
+                MuroCampusApp(vm, oscuro) { oscuro = !oscuro }
             }
         }
     }
@@ -46,7 +51,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MuroCampusApp(vm: PostsViewModel) {
+private fun MuroCampusApp(vm: PostsViewModel, oscuro: Boolean, cambiarTema: () -> Unit) {
     var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
     var creando by rememberSaveable { mutableStateOf(false) }
     BackHandler(enabled = idSeleccionado != null || creando) {
@@ -59,7 +64,21 @@ private fun MuroCampusApp(vm: PostsViewModel) {
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { TopAppBar(title = { Text("MuroCampus") }) },
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text("MuroCampus", style = androidx.compose.material3.MaterialTheme.typography.titleLarge)
+                        Text("COMUNIDAD UNIVERSITARIA", style = androidx.compose.material3.MaterialTheme.typography.labelSmall)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = cambiarTema) {
+                        Text(if (oscuro) "☼" else "☾", style = androidx.compose.material3.MaterialTheme.typography.titleLarge)
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             if (idSeleccionado == null && !creando) {
                 FloatingActionButton(onClick = {
@@ -98,7 +117,7 @@ private fun MuroCampusApp(vm: PostsViewModel) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    MuroCampusTheme {
+    MuroCampusTheme(darkTheme = false) {
         Scaffold { innerPadding ->
             Text(
                 text = "MuroCampus",

@@ -20,7 +20,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -77,7 +76,7 @@ fun PantallaDetalle(
                 }
                 items(actual.datos.comentarios, key = { it.id }) { comentario ->
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(comentario.email, color = Color(0xFF1565C0),
+                        Text(comentario.email, color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelLarge)
                         Text(comentario.body, style = MaterialTheme.typography.bodyMedium)
                     }
